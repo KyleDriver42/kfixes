@@ -48,7 +48,7 @@ C:\Temp\ktool.ps1 remote <hostname> <command> <flag>
 * `battery`: Generates and displays a battery health report.  
 * `info`: Shows key computer and logged-in user information.  
 * `adinfo <username>`: Retrieves Active Directory information for a specified user.  
-* `postimage`: Runs a series of hardware and software diagnostics, including tests for disk drives, Wi-Fi, battery health, and peripherals like the keyboard and trackpad.  
+* `postimage`: Runs a series of hardware and software diagnostics, including tests for disk drives, Wi-Fi, battery health, and peripherals like the keyboard and trackpad. Peripheral tests are skipped if run on a remote machine.
 * `remote`: Executes a command on a remote machine. See **Remote Execution** above for syntax.  
 * `progress`: Checks the status and progress of a script running on a remote machine.  
 * `notes`: Generates a text file after a remote session, creating notes for a support ticket.  
