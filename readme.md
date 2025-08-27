@@ -8,7 +8,7 @@ KTool is a powerful PowerShell script designed to automate common IT support tas
 
 ### **Getting Started**
 
-To use the script, download `ktool.ps1` and save it to a local directory, such as `C:\Temp\`.
+To use the script, download `ktool.ps1` and save it to a local directory, such as `C:\Temp\`. The script automatically resets Powershell script execution permissions to "Default" when it finishes running.
 
 **Local Execution**
 
@@ -23,7 +23,7 @@ C:\Temp\ktool.ps1 <command> <flag>
 
 **Remote Execution**
 
-To run KTool on a remote machine, you must have `PsExec.exe` in the same directory as the script. The remote machine must be online and accessible on the network.
+To run KTool on a remote machine, the remote machine must be online and accessible on the network. Ticket notes are generated automatically for remote sessions, and will open once the session closes.
 
 PowerShell
 
