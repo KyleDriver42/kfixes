@@ -8,7 +8,7 @@ KTool is a powerful PowerShell script designed to automate common IT support tas
 
 ### **Getting Started**
 
-To use the script, download `ktool.ps1` and save it to a local directory, such as `C:\Temp\`. The script automatically resets Powershell script execution permissions to "Default" when it finishes running.
+To use the script, download `ktool.ps1` and save it to a local directory, such as `C:\Temp\`.
 
 **Local Execution**
 
@@ -31,7 +31,7 @@ PowerShell
 Set-ExecutionPolicy -ExecutionPolicy Unrestricted
 C:\Temp\ktool.ps1 remote <hostname> <command> <flag>
 ```
-
+The script automatically resets Powershell script execution permissions to "Default" when it finishes running.
 ---
 
 ### **Commands**
