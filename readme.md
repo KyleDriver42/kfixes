@@ -12,7 +12,7 @@ To use the script, download `ktool.ps1` and save it to a local directory, such a
 
 **Local Execution**
 
-Open PowerShell as an administrator. Then, navigate to the directory where you saved the script and run it with the desired command and flag.
+Open PowerShell as an administrator. Then, enable Powershell script permissions, navigate to the directory where you saved the script and run it with the desired command and flag. The script automatically resets Powershell script execution permissions to "Default" when it finishes running.
 
 PowerShell
 
@@ -31,7 +31,7 @@ PowerShell
 Set-ExecutionPolicy -ExecutionPolicy Unrestricted
 C:\Temp\ktool.ps1 remote <hostname> <command> <flag>
 ```
-The script automatically resets Powershell script execution permissions to "Default" when it finishes running.
+
 ---
 
 ### **Commands**
