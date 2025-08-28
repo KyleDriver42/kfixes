@@ -179,27 +179,63 @@ Function Driver-Update
     }
 
 Function Repair-Office
-{
-    Get-Process -Name *Excel* -ErrorAction SilentlyContinue | Stop-Process -Force 
-    Get-Process -Name *Word* -ErrorAction SilentlyContinue | Stop-Process -Force
-    $command64 = ' 
-    cmd.exe /C "C:\Program Files\Microsoft Office 15\ClientX64\OfficeClickToRun.exe" scenario=Repair platform=x64 culture=en-us RepairType=QuickRepair forceappshutdown=True DisplayLevel=False
-    '
-    $command86 = ' 
-    cmd.exe /C "C:\Program Files\Microsoft Office 15\ClientX86\OfficeClickToRun.exe" scenario=Repair platform=x86 culture=en-us RepairType=QuickRepair forceappshutdown=True DisplayLevel=False
-    '
-    echo "REPAIRING OFFICE"
-    if(Test-Path -Path "C:\Program Files\Microsoft Office 15\ClientX64\OfficeClickToRun.exe")
-        {
-        Invoke-Expression -Command:$command64
-        }
-    elseif(Test-PAth -Path "C:\Program Files\Microsoft Office 15\ClientX32\OfficeClickToRun.exe")
-        {
-            Invoke-Expression -Command:$command86
-        }
-    echo "DONE"
-    Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Ran Online Office repair."
-}
+    {
+        Get-Process -Name *Excel* -ErrorAction SilentlyContinue | Stop-Process -Force 
+        Get-Process -Name *Word* -ErrorAction SilentlyContinue | Stop-Process -Force
+        $command64 = ' 
+        cmd.exe /C "C:\Program Files\Microsoft Office 15\ClientX64\OfficeClickToRun.exe" scenario=Repair platform=x64 culture=en-us RepairType=QuickRepair forceappshutdown=True DisplayLevel=False
+        '
+        $command86 = ' 
+        cmd.exe /C "C:\Program Files\Microsoft Office 15\ClientX86\OfficeClickToRun.exe" scenario=Repair platform=x86 culture=en-us RepairType=QuickRepair forceappshutdown=True DisplayLevel=False
+        '
+        echo "REPAIRING OFFICE"
+        if(Test-Path -Path "C:\Program Files\Microsoft Office 15\ClientX64\OfficeClickToRun.exe")
+            {
+            Invoke-Expression -Command:$command64
+            }
+        elseif(Test-PAth -Path "C:\Program Files\Microsoft Office 15\ClientX32\OfficeClickToRun.exe")
+            {
+                Invoke-Expression -Command:$command86
+            }
+        echo "DONE"
+        Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Ran Online Office repair."
+    }
+Function Reset-Network
+    {
+        Write-Host "Resetting Winsock Catalog..."
+        cmd.exe /c "netsh winsock reset"
+
+        Write-Host "Resetting TCP/IP Stack..."
+        cmd.exe /c "netsh int ip reset"
+
+        Write-Host "Releasing and Renewing IP Address..."
+        cmd.exe /c "ipconfig /release"
+        cmd.exe /c "ipconfig /renew"
+
+        Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Reset Winsock, TCP/IP Stack, and renewed IP address."
+    }
+Function Clear-PrintQueue
+    {
+        Write-Host "Stopping the Print Spooler service."
+        Stop-Service -Name Spooler -Force
+        
+        $spoolPath = "C:\Windows\System32\spool\PRINTERS\*"
+        Write-Host "Clearing files from $spoolPath"
+        try
+            {
+                Remove-Item -Path $spoolPath -Force -ErrorAction Stop
+                Write-Host "Print queue cleared successfully."
+                Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Cleared print queue."
+            }
+        catch
+            {
+                Write-Host "Error clearing some files."
+                Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Failed to clear print queue."
+            }
+        
+        Write-Host "Restarting the Print Spooler service."
+        Start-Service -Name Spooler
+    }
 Function Clear-Slack
     {
         Get-Process -Name *Slack* -ErrorAction SilentlyContinue | Stop-Process -Force 
@@ -406,6 +442,16 @@ Function Post-Image
             }
 
     }
+Function Get-RecentErrors
+{
+    Write-Host "--- Recent Application Errors ---"
+    Get-WinEvent -LogName Application -FilterXPath "*[System[Level=1 or Level=2]]" -MaxEvents 10 | 
+        Select-Object TimeCreated, ProviderName, Message | Format-List
+
+    Write-Host "--- Recent System Errors ---"
+    Get-WinEvent -LogName System -FilterXPath "*[System[Level=1 or Level=2]]" -MaxEvents 10 | 
+        Select-Object TimeCreated, ProviderName, Message | Format-List
+}
 Function Reboot-PC
     {
         echo "REBOOTING WORKSTATION"
@@ -460,6 +506,18 @@ Switch ($run)
         postimage
             {
                 Post-Image
+            }
+        errorlog
+            {
+                Get-RecentErrors
+            }
+        network
+            {
+                Reset-Network
+            }
+        printq
+            {
+                Clear-PrintQueue
             }
         
 
@@ -545,6 +603,20 @@ Function Net-Cleanup
         Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Flushed DNS."
         echo "DONE"
     }
+Function Reset-Network
+{
+    Write-Host "Resetting Winsock Catalog..."
+    cmd.exe /c "netsh winsock reset"
+
+    Write-Host "Resetting TCP/IP Stack..."
+    cmd.exe /c "netsh int ip reset"
+
+    Write-Host "Releasing and Renewing IP Address..."
+    cmd.exe /c "ipconfig /release"
+    cmd.exe /c "ipconfig /renew"
+
+    Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Reset Winsock, TCP/IP Stack, and renewed IP address."
+}
 
 Function Windows-Repair
     {
@@ -586,6 +658,28 @@ Function Run-WinUpdate
         Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Ran Windows Updates."
 
     }
+Function Clear-PrintQueue
+{
+    Write-Host "Stopping the Print Spooler service."
+    Stop-Service -Name Spooler -Force
+    
+    $spoolPath = "C:\Windows\System32\spool\PRINTERS\*"
+    Write-Host "Clearing files from $spoolPath"
+    try
+        {
+            Remove-Item -Path $spoolPath -Force -ErrorAction Stop
+            Write-Host "Print queue cleared successfully."
+            Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Cleared print queue."
+        }
+    catch
+        {
+            Write-Host "Error clearing some files."
+            Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Failed to clear print queue."
+        }
+    
+    Write-Host "Restarting the Print Spooler service."
+    Start-Service -Name Spooler
+}
 Function Driver-Update
     {
         Function HP-Update
@@ -1002,6 +1096,17 @@ Function Post-Image
             }
 
     }
+
+Function Get-RecentErrors
+{
+    Write-Host "--- Recent Application Errors ---"
+    Get-WinEvent -LogName Application -FilterXPath "*[System[Level=1 or Level=2]]" -MaxEvents 10 | 
+        Select-Object TimeCreated, ProviderName, Message | Format-List
+
+    Write-Host "--- Recent System Errors ---"
+    Get-WinEvent -LogName System -FilterXPath "*[System[Level=1 or Level=2]]" -MaxEvents 10 | 
+        Select-Object TimeCreated, ProviderName, Message | Format-List
+}
 Function Ktool-Remote
     {
         Function Check-PsExec
@@ -1048,6 +1153,18 @@ Function Ktool-Remote
         elseif($runr -eq "postimage")
             {
                 Set-Variable -name Command -Value "slackcache"
+            }
+        elseif($runr -eq "errorlog")
+            {
+                Set-Variable -name Command -Value "errorlog"
+            }
+        elseif($runr -eq "network")
+            {
+                Set-Variable -name Command -Value "network"
+            }
+        elseif($runr -eq "printq")
+            {
+                Clear-PrintQueue
             }
         elseif($runr -eq "info")
             {   
@@ -1208,6 +1325,10 @@ Switch ($run)
             {
                 Driver-Update
             }
+        network
+            {
+                Reset-Network
+            }
         officerep
             {
                 Repair-Office
@@ -1215,6 +1336,10 @@ Switch ($run)
         slackcache
             {
                 Clear-Slack
+            }
+        printq
+            {
+                Clear-PrintQueue
             }
         wlan
             {
@@ -1240,6 +1365,10 @@ Switch ($run)
             {
                 Post-Image
             }
+        errorlog
+            {
+                Get-RecentErrors
+            }
         zatanna
             {
                 Zatanna-Translate
@@ -1255,10 +1384,13 @@ Switch ($run)
             lightrepair	Run Windows repairs only
             cache		Clear cache (browser and local)
             winupdate	Run Windows updates
+            network     Resets Winsock, TCP/IP stack, and renews IP address
             hpdrivers	Run HP Imaging Assistant to automatically update drivers (HP only) 
             officerep	Run Online Office repair
+            printq      Clear printer queue
             slackcache	Clear Slack cache
             pkill		Kills a process by name Syntax: c:\temp\ktool.ps1 pkill chrome
+            errorlog    Displays recent Application and System errors
             wlan		Displays wifi connection log
             info		Shows information on computer and logged in user
             adinfo		Shows info for a specific username
