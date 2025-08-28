@@ -44,7 +44,7 @@ C:\Temp\ktool.ps1 remote <hostname> <command> <flag>
 * `hpdrivers`: Uses HP Image Assistant to automatically update drivers, BIOS, and firmware on HP systems.  
 * `officerep`: Runs a quick repair for Microsoft Office.
 * `printq`: Clear printer queue  
-* `slackcache`: Clears the cache for the Slack desktop application.  
+* `slackcache`: Clears the cache for the Slack desktop app.  
 * `pkill <process_name>`: Kills a specified process by name (e.g., `C:\Temp\ktool.ps1 pkill chrome`).
 * `errorlog`: Displays recent Application and System errors  
 * `wlan`: Generates and displays a detailed Wi-Fi report.  
