@@ -39,11 +39,14 @@ C:\Temp\ktool.ps1 remote <hostname> <command> <flag>
 * `repair`: Performs a full system repair, including clearing caches, running Windows repairs, updating HP drivers (if applicable), and installing Windows updates.  
 * `lightrepair`: Runs only the core Windows repair functions (`DISM` and `SFC`).  
 * `cache`: Clears caches for browsers (Chrome and Edge), Java, and temporary files.  
-* `winupdate`: Checks for and installs available Windows updates.  
+* `winupdate`: Checks for and installs available Windows updates.
+* `network`: Resets Winsock, TCP/IP stack, and renews IP address   
 * `hpdrivers`: Uses HP Image Assistant to automatically update drivers, BIOS, and firmware on HP systems.  
-* `officerep`: Runs a quick repair for Microsoft Office.  
+* `officerep`: Runs a quick repair for Microsoft Office.
+* `printq`: Clear printer queue  
 * `slackcache`: Clears the cache for the Slack desktop application.  
-* `pkill <process_name>`: Kills a specified process by name (e.g., `.\ktool-n.ps1 pkill chrome`).  
+* `pkill <process_name>`: Kills a specified process by name (e.g., `C:\Temp\ktool.ps1 pkill chrome`).
+* `errorlog`: Displays recent Application and System errors  
 * `wlan`: Generates and displays a detailed Wi-Fi report.  
 * `battery`: Generates and displays a battery health report.  
 * `info`: Shows key computer and logged-in user information.  
