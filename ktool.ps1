@@ -984,7 +984,7 @@ Function Post-Image
 
                                 return $match.Groups["value"].Value.Trim()
                     }
-        `
+        
 
                 $batteryReportPath = "C:\Temp\batt.html"
 
