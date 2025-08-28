@@ -82,4 +82,4 @@ Flags are optional parameters that control the script's behavior after the main 
 
 * Run a full repair on a remote host named `PC-01`: `C:\Temp\ktool.ps1 remote PC-01 repair auto`  
 * Check the progress of a remote session on `PC-02`: `C:\Temp\ktool.ps1 progress PC-02`  
-* Kill the `Chrome` browser on a remote computer: `C:\Temp\ktool.ps1 remote PC-03 pkill chrome`
+* Kill the `Chrome` browser on `PC-03`: `C:\Temp\ktool.ps1 remote PC-03 pkill chrome`
