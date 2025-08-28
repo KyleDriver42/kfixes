@@ -1,4 +1,4 @@
-# **KTool: The Komprehensive PC Repair and Diagnostics Tool**
+# **KTool: A Swiss-Army knife for IT support.**
 
 ### **Overview**
 
