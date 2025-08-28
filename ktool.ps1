@@ -18,13 +18,13 @@ Function Net-Cleanup
         Get-Process -Name "*Edge*" | Stop-Process -Force
         Get-Process -Name "*Chrome*" | Stop-Process -Force
 
-        echo "CLEARING INTERNET CACHE"
+        Write-Host "CLEARING INTERNET CACHE"
         Remove-Item -path "C:\Users\$LOCUSR\AppData\Local\Microsoft\Windows\Edge\User Data\Default\Cache\Cache_Data\*" -Recurse -Force -EA SilentlyContinue
         Remove-Item -path "C:\Users\$LOCUSR\AppData\Local\Microsoft\Windows\Edge\User Data\Default\Network\Cookies" -Force -EA SilentlyContinue
         Remove-Item -path "C:\Users\$LOCUSR\AppData\Local\Microsoft\Windows\Edge\User Data\Default\Network\Cookies-journal" -Force -EA SilentlyContinue
         Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Cleared Internet cache."
 
-        echo "CLEARING CHROME CACHE"
+        Write-Host "CLEARING CHROME CACHE"
         Remove-Item -path "C:\Users\$LOCUSR\AppData\Google\Chrome\User Data\Default\Cache\*" -Recurse -Force -EA SilentlyContinue
         Remove-Item -path "C:\Users\$LOCUSR\AppData\Google\Chrome\User Data\Default\Cookies" -Recurse -Force -EA SilentlyContinue 
         Remove-Item -path "C:\Users\$LOCUSR\AppData\Google\Chrome\User Data\Default\Media Cache" -Recurse -Force -EA SilentlyContinue
@@ -33,16 +33,16 @@ Function Net-Cleanup
         Remove-Item "C:\Users\$LOCUSR\AppData\Google\Chrome\User Data\Default\Network\Media Cache" -Force -EA SilentlyContinue
         Remove-Item "C:\Users\$LOCUSR\AppData\Google\Chrome\User Data\Default\Network\Cookies-Journal" -Force -EA SilentlyContinue
         Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Cleared Chrome cache."
-        echo "DONE"
+        Write-Host "DONE"
 
-        echo "CLEARING LOCAL CACHE"
+        Write-Host "CLEARING LOCAL CACHE"
         Remove-Item C:\Windows\Temp\* -Recurse -Force
         Remove-Item C:\users\$LOCUSR\AppData\Local\Temp\* -Recurse -Force
         Remove-Item C:\Windows\Prefetch\* -Recurse -Force
         Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Cleared local cache."
-        echo "DONE"
+        Write-Host "DONE"
 
-        echo "CLEARING JAVA CACHE"
+        Write-Host "CLEARING JAVA CACHE"
         $JavaJob = Start-Job {
             Remove-Item C:\users\$LOCUSR\AppData\LocalLow\Sun\Java\Deployment\Cache\* -Recurse -Force
             Remove-Item C:\users\$LOCUSR\AppData\Roaming\Sun\Java\Deployment\Cache\* -Recurse -Force
@@ -58,18 +58,18 @@ Function Net-Cleanup
                 Stop-Job -JobId $JavaJob
             }
         Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Cleared Java cache."
-        echo "DONE"
+        Write-Host "DONE"
 
-        echo "FLUSHING DNS"
+        Write-Host "FLUSHING DNS"
         cmd.exe /c ipconfig /flushdns
         Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Flushed DNS."
-        echo "DONE"
+        Write-Host "DONE"
     }
 
 Function Windows-Repair
     {
         #This is the dumbest possible way to do this but it's the only way I could get to work in this version of PS.
-        echo "REPAIRING WINDOWS IMAGE"
+        Write-Host "REPAIRING WINDOWS IMAGE"
         $dismtimer = "Start-Sleep -Seconds 600
         cmd /c 'taskkill /IM dism.exe /F'"
 
@@ -79,21 +79,21 @@ Function Windows-Repair
         dism /online /cleanup-image /restorehealth
         Remove-Item "C:\temp\dt.ps1" 
         Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Ran DISM."
-        echo "DONE."
+        Write-Host "DONE."
 
-        echo "RUNNING SYSTEM FILE CHECK"
+        Write-Host "RUNNING SYSTEM FILE CHECK"
         sfc /scannow
         Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Ran SFC."
-        echo "DONE"
+        Write-Host "DONE"
 
-        echo "REPAIRING MICROSOFT COMPONENTS"
+        Write-Host "REPAIRING MICROSOFT COMPONENTS"
         Get-AppXPackage -allusers | Foreach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
-        echo "DONE"
+        Write-Host "DONE"
 
-        echo "UPDATING GROUP POLICY"
-        cmd.exe /c echo n | gpupdate /force /wait:0
+        Write-Host "UPDATING GROUP POLICY"
+        cmd.exe /c Write-Host n | gpupdate /force /wait:0
         Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Re-Registered Microsoft components."
-        echo "DONE"   
+        Write-Host "DONE"   
     }
 Function Run-WinUpdate
     {    
@@ -116,7 +116,7 @@ Function Driver-Update
         
             Function Run-HPIA
                 {
-                    echo "Analyzing Drivers"
+                    Write-Host "Analyzing Drivers"
                     Start-Process "C:\Program Files\HP\HPIA\HPImageAssistant.exe" -ArgumentList "/Operation:Analyze /Action:List /Silent /ReportFolder:$report" -wait
                     $jsonFile = Get-ChildItem $report -Filter "*.json" | Where-Object { $_.PSIsContainer -eq $false }
                     $list = Get-Content $jsonFile.FullName | Where-Object {$_ -match '"Name":' -or $_ -match '#'}
@@ -124,7 +124,7 @@ Function Driver-Update
         
                     $dreport
                     Start-Process "C:\Program Files\HP\HPIA\HPImageAssistant.exe" -ArgumentList "/Operation:Analyze /Action:Install /Category:BIOS,Drivers,Firmware,Software /Selection:All /Noninteractive /SoftPaqDownloadFolder:$download /ReportFolder:$report /AutoCleanup /LogFolder:$log" -wait
-                    echo "Drivers Upgraded."
+                    Write-Host "Drivers Upgraded."
                     Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Ran HPIA."
                 }
         
@@ -139,20 +139,20 @@ Function Driver-Update
                 {
                     If (Test-Path -path "C:\Temp\hp-hpia-5.3.2.exe")
                         {
-                            echo "Preparing Device Upgrades..."
+                            Write-Host "Preparing Device Upgrades..."
                             Start-Process "C:\Temp\hp-hpia-5.3.2.exe" -ArgumentList '/s /e /f "C:\Program Files\HP\HPIA"'
                             Wait-HPIA
                             Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Set up HPIA."
-                            echo "Queuing Driver and Firmware upgrades."
+                            Write-Host "Queuing Driver and Firmware upgrades."
                         }
                     else
                     {
-                        echo "Preparing Device Upgrades..."
+                        Write-Host "Preparing Device Upgrades..."
                         Invoke-WebRequest -Uri https://hpia.hpcloud.hp.com/downloads/hpia/hp-hpia-5.3.2.exe -OutFile C:\Temp\hp-hpia-5.3.2.exe | Out-Null
                         Start-Process "C:\Temp\hp-hpia-5.3.2.exe" -ArgumentList '/s /e /f "C:\Program Files\HP\HPIA"'
                         Wait-HPIA
                         Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Set up HPIA."
-                        echo "Queuing Driver and Firmware upgrades."
+                        Write-Host "Queuing Driver and Firmware upgrades."
                     }
                 }
         
@@ -188,7 +188,7 @@ Function Repair-Office
         $command86 = ' 
         cmd.exe /C "C:\Program Files\Microsoft Office 15\ClientX86\OfficeClickToRun.exe" scenario=Repair platform=x86 culture=en-us RepairType=QuickRepair forceappshutdown=True DisplayLevel=False
         '
-        echo "REPAIRING OFFICE"
+        Write-Host "REPAIRING OFFICE"
         if(Test-Path -Path "C:\Program Files\Microsoft Office 15\ClientX64\OfficeClickToRun.exe")
             {
             Invoke-Expression -Command:$command64
@@ -197,7 +197,7 @@ Function Repair-Office
             {
                 Invoke-Expression -Command:$command86
             }
-        echo "DONE"
+        Write-Host "DONE"
         Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Ran Online Office repair."
     }
 Function Reset-Network
@@ -454,7 +454,7 @@ Function Get-RecentErrors
 }
 Function Reboot-PC
     {
-        echo "REBOOTING WORKSTATION"
+        Write-Host "REBOOTING WORKSTATION"
         Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Rebooted."
         Set-ExecutionPolicy -ExecutionPolicy Default -Scope MachinePolicy
         Start-Sleep -Seconds 10 ; Restart-Computer -Force
@@ -470,7 +470,7 @@ Switch ($run)
     {
         Default
             {
-                echo "Unrecognized Command. Run 'help' for a list of commands."
+                Write-Host "Unrecognized Command. Run 'help' for a list of commands."
             }
         repair
             {
@@ -527,7 +527,7 @@ Switch ($opt)
     Default
             {
                 Set-ExecutionPolicy -ExecutionPolicy Default -Scope MachinePolicy
-                echo "DONE"
+                Write-Host "DONE"
                 Delete-Self
             }
     auto    
@@ -538,12 +538,12 @@ Switch ($opt)
                 
     reboot
             {
-                echo "DONE"
+                Write-Host "DONE"
                 Reboot-PC
             }
     delete
             {
-                echo "DONE"
+                Write-Host "DONE"
                 Delete-Self
             } 
     }
@@ -556,13 +556,13 @@ Function Net-Cleanup
         Get-Process -Name "*Edge*" | Stop-Process -Force
         Get-Process -Name "*Chrome*" | Stop-Process -Force
 
-        echo "CLEARING INTERNET CACHE"
+        Write-Host "CLEARING INTERNET CACHE"
         Remove-Item -path "C:\Users\$LOCUSR\AppData\Local\Microsoft\Windows\Edge\User Data\Default\Cache\Cache_Data\*" -Recurse -Force -EA SilentlyContinue
         Remove-Item -path "C:\Users\$LOCUSR\AppData\Local\Microsoft\Windows\Edge\User Data\Default\Network\Cookies" -Force -EA SilentlyContinue
         Remove-Item -path "C:\Users\$LOCUSR\AppData\Local\Microsoft\Windows\Edge\User Data\Default\Network\Cookies-journal" -Force -EA SilentlyContinue
         Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Cleared Internet cache."
 
-        echo "CLEARING CHROME CACHE"
+        Write-Host "CLEARING CHROME CACHE"
         Remove-Item -path "C:\Users\$LOCUSR\AppData\Google\Chrome\User Data\Default\Cache\*" -Recurse -Force -EA SilentlyContinue
         Remove-Item -path "C:\Users\$LOCUSR\AppData\Google\Chrome\User Data\Default\Cookies" -Recurse -Force -EA SilentlyContinue 
         Remove-Item -path "C:\Users\$LOCUSR\AppData\Google\Chrome\User Data\Default\Media Cache" -Recurse -Force -EA SilentlyContinue
@@ -571,16 +571,16 @@ Function Net-Cleanup
         Remove-Item "C:\Users\$LOCUSR\AppData\Google\Chrome\User Data\Default\Network\Media Cache" -Force -EA SilentlyContinue
         Remove-Item "C:\Users\$LOCUSR\AppData\Google\Chrome\User Data\Default\Network\Cookies-Journal" -Force -EA SilentlyContinue
         Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Cleared Chrome cache."
-        echo "DONE"
+        Write-Host "DONE"
 
-        echo "CLEARING LOCAL CACHE"
+        Write-Host "CLEARING LOCAL CACHE"
         Remove-Item C:\Windows\Temp\* -Recurse -Force
         Remove-Item C:\users\$LOCUSR\AppData\Local\Temp\* -Recurse -Force
         Remove-Item C:\Windows\Prefetch\* -Recurse -Force
         Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Cleared local cache."
-        echo "DONE"
+        Write-Host "DONE"
 
-        echo "CLEARING JAVA CACHE"
+        Write-Host "CLEARING JAVA CACHE"
         $JavaJob = Start-Job {
             Remove-Item C:\users\$LOCUSR\AppData\LocalLow\Sun\Java\Deployment\Cache\* -Recurse -Force
             Remove-Item C:\users\$LOCUSR\AppData\Roaming\Sun\Java\Deployment\Cache\* -Recurse -Force
@@ -596,12 +596,12 @@ Function Net-Cleanup
                 Stop-Job -JobId $JavaJob
             }
         Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Cleared Java cache."
-        echo "DONE"
+        Write-Host "DONE"
 
-        echo "FLUSHING DNS"
+        Write-Host "FLUSHING DNS"
         cmd.exe /c ipconfig /flushdns
         Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Flushed DNS."
-        echo "DONE"
+        Write-Host "DONE"
     }
 Function Reset-Network
 {
@@ -621,7 +621,7 @@ Function Reset-Network
 Function Windows-Repair
     {
         #This is the dumbest possible way to do this but it's the only way I could get to work in this version of PS.
-        echo "REPAIRING WINDOWS IMAGE"
+        Write-Host "REPAIRING WINDOWS IMAGE"
         $dismtimer = "Start-Sleep -Seconds 600
         cmd /c 'taskkill /IM dism.exe /F'"
 
@@ -631,21 +631,21 @@ Function Windows-Repair
         dism /online /cleanup-image /restorehealth
         Remove-Item "C:\temp\dt.ps1" 
         Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Ran DISM."
-        echo "DONE."
+        Write-Host "DONE."
 
-        echo "RUNNING SYSTEM FILE CHECK"
+        Write-Host "RUNNING SYSTEM FILE CHECK"
         sfc /scannow
         Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Ran SFC."
-        echo "DONE"
+        Write-Host "DONE"
 
-        echo "REPAIRING MICROSOFT COMPONENTS"
+        Write-Host "REPAIRING MICROSOFT COMPONENTS"
         Get-AppXPackage -allusers | Foreach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
-        echo "DONE"
+        Write-Host "DONE"
 
-        echo "UPDATING GROUP POLICY"
-        cmd.exe /c echo n | gpupdate /force /wait:0
+        Write-Host "UPDATING GROUP POLICY"
+        cmd.exe /c Write-Host n | gpupdate /force /wait:0
         Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Re-Registered Microsoft components."
-        echo "DONE"   
+        Write-Host "DONE"   
     }
 Function Run-WinUpdate
     {    
@@ -690,7 +690,7 @@ Function Driver-Update
         
             Function Run-HPIA
                 {
-                    echo "Analyzing Drivers"
+                    Write-Host "Analyzing Drivers"
                     Start-Process "C:\Program Files\HP\HPIA\HPImageAssistant.exe" -ArgumentList "/Operation:Analyze /Action:List /Silent /ReportFolder:$report" -wait
                     $jsonFile = Get-ChildItem $report -Filter "*.json" | Where-Object { $_.PSIsContainer -eq $false }
                     $list = Get-Content $jsonFile.FullName | Where-Object {$_ -match '"Name":' -or $_ -match '#'}
@@ -698,7 +698,7 @@ Function Driver-Update
         
                     $dreport
                     Start-Process "C:\Program Files\HP\HPIA\HPImageAssistant.exe" -ArgumentList "/Operation:Analyze /Action:Install /Category:BIOS,Drivers,Firmware,Software /Selection:All /Noninteractive /SoftPaqDownloadFolder:$download /ReportFolder:$report /AutoCleanup /LogFolder:$log" -wait
-                    echo "Drivers Upgraded."
+                    Write-Host "Drivers Upgraded."
                     Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Ran HPIA."
                 }
         
@@ -713,20 +713,20 @@ Function Driver-Update
                 {
                     If (Test-Path -path "C:\Temp\hp-hpia-5.3.2.exe")
                         {
-                            echo "Preparing Device Upgrades..."
+                            Write-Host "Preparing Device Upgrades..."
                             Start-Process "C:\Temp\hp-hpia-5.3.2.exe" -ArgumentList '/s /e /f "C:\Program Files\HP\HPIA"'
                             Wait-HPIA
                             Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Set up HPIA."
-                            echo "Queuing Driver and Firmware upgrades."
+                            Write-Host "Queuing Driver and Firmware upgrades."
                         }
                     else
                     {
-                        echo "Preparing Device Upgrades..."
+                        Write-Host "Preparing Device Upgrades..."
                         Invoke-WebRequest -Uri https://hpia.hpcloud.hp.com/downloads/hpia/hp-hpia-5.3.2.exe -OutFile C:\Temp\hp-hpia-5.3.2.exe | Out-Null
                         Start-Process "C:\Temp\hp-hpia-5.3.2.exe" -ArgumentList '/s /e /f "C:\Program Files\HP\HPIA"'
                         Wait-HPIA
                         Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Set up HPIA."
-                        echo "Queuing Driver and Firmware upgrades."
+                        Write-Host "Queuing Driver and Firmware upgrades."
                     }
                 }
         
@@ -762,7 +762,7 @@ Function Repair-Office
     $command86 = ' 
     cmd.exe /C "C:\Program Files\Microsoft Office 15\ClientX86\OfficeClickToRun.exe" scenario=Repair platform=x86 culture=en-us RepairType=QuickRepair forceappshutdown=True DisplayLevel=False
     '
-    echo "REPAIRING OFFICE"
+    Write-Host "REPAIRING OFFICE"
     if(Test-Path -Path "C:\Program Files\Microsoft Office 15\ClientX64\OfficeClickToRun.exe")
         {
         Invoke-Expression -Command:$command64
@@ -771,7 +771,7 @@ Function Repair-Office
         {
             Invoke-Expression -Command:$command86
         }
-    echo "DONE"
+    Write-Host "DONE"
     Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Ran Online Office repair."
 }
 Function Clear-Slack
@@ -800,11 +800,11 @@ Function Get-Info
     {
         $cinfo= Get-ComputerInfo -Property CsModel, CsDomain, WindowsRegisteredOrganization, OsLocalDateTime, OsLastBootUpTime
         $uinfo= get-ADUser $LOCUSR -Properties passwordlastset, passwordexpired, passwordneverexpires
-        echo "COMPUTER INFORMATION"
-        echo $cinfo
+        Write-Host "COMPUTER INFORMATION"
+        Write-Host $cinfo
 
-        echo "USER INFORMATION"
-        echo $uinfo
+        Write-Host "USER INFORMATION"
+        Write-Host $uinfo
         exit
     }
 
@@ -1118,7 +1118,7 @@ Function Ktool-Remote
                 else
                     {
                         $pse = "c:\psexec.exe -accepteula"
-                            echo "Preparing Remote Execution."
+                            Write-Host "Preparing Remote Execution."
                             Invoke-WebRequest -Uri https://download.sysinternals.com/files/PSTools.zip -OutFile C:\Temp\PSTools.zip
                             Expand-Archive -Path "C:\Temp" -DestinationPath "C:\"
                             Remove-Item -Path C:\Temp\PSTools.zip
@@ -1229,10 +1229,10 @@ Function Ktool-Remote
                         }
                     else
                         {
-                        echo "Waiting for Host..."
+                        Write-Host "Waiting for Host..."
                             Do {
                                     Start-Sleep -seconds 30
-                                    echo "Still Waiting..."
+                                    Write-Host "Still Waiting..."
                                 }
                             Until (Test-Path -path \\$opt\c$\Temp)
                             Get-Content \\$opt\C$\Temp\ktlog.txt
@@ -1242,7 +1242,7 @@ Function Ktool-Remote
             }
         else
             {
-                echo "Unrecognized Command. Run 'help' for a list of commands."
+                Write-Host "Unrecognized Command. Run 'help' for a list of commands."
             }
 
         if($optr -eq "auto")
@@ -1264,7 +1264,7 @@ Function Ktool-Remote
             }
         else
             {
-                echo "HOST NOT FOUND."
+                Write-Host "HOST NOT FOUND."
                 exit
             }
 
@@ -1279,7 +1279,7 @@ Function Ktool-Remote
     }
 Function Reboot-PC
     {
-        echo "REBOOTING WORKSTATION"
+        Write-Host "REBOOTING WORKSTATION"
         Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Rebooted."
         Set-ExecutionPolicy -ExecutionPolicy Default -Scope MachinePolicy
         Start-Sleep -Seconds 10 ; Restart-Computer -Force
@@ -1300,7 +1300,7 @@ Switch ($run)
     {
         Default
             {
-                echo "Unrecognized Command. Run 'help' for a list of commands."
+                Write-Host "Unrecognized Command. Run 'help' for a list of commands."
             }
         repair
             {
@@ -1379,7 +1379,7 @@ Switch ($run)
             }
         help
             {
-                echo "------COMMANDS------
+                Write-Host "------COMMANDS------
             repair		Clear cache (browser and local), run Windows repairs, HP Driver updates, and Windows updates
             lightrepair	Run Windows repairs only
             cache		Clear cache (browser and local)
@@ -1418,7 +1418,7 @@ Switch ($opt)
     Default
             {
                 Set-ExecutionPolicy -ExecutionPolicy Default -Scope MachinePolicy
-                echo "DONE"
+                Write-Host "DONE"
                 Delete-Self
             }
     auto    
@@ -1429,12 +1429,12 @@ Switch ($opt)
                 
     reboot
             {
-                echo "DONE"
+                Write-Host "DONE"
                 Reboot-PC
             }
     delete
             {
-                echo "DONE"
+                Write-Host "DONE"
                 Delete-Self
             } 
     }
