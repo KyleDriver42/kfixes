@@ -8,7 +8,7 @@ KTool is a PowerShell script designed to automate common IT support tasks and ma
 
 ### **Getting Started**
 
-To use the script, download `ktool.ps1` and save it to a local directory, such as `C:\Temp\`.
+To use the script, download `ktool.ps1` and save it to a local directory, such as `C:\Temp`.
 
 **Local Execution**
 
