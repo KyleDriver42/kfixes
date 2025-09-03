@@ -642,7 +642,6 @@ Function Net-Cleanup
 
 Function Windows-Repair
     {
-        #This is the dumbest possible way to do this but it's the only way I could get to work in this version of PS.
         Write-Host "REPAIRING WINDOWS IMAGE"
         $dismtimer = "Start-Sleep -Seconds 600
         cmd /c 'taskkill /IM dism.exe /F'"
@@ -1197,7 +1196,24 @@ Function Ktool-Remote
         if (-not(Test-Path -path C:\PsExec.exe -PathType Leaf))
             {
                     Write-Host "Preparing Remote Execution."
-                    Invoke-WebRequest -Uri https://download.sysinternals.com/files/PSTools.zip -OutFile C:\Temp\PSTools.zip
+                    try
+                        {
+                            Invoke-WebRequest -Uri https://download.sysinternals.com/files/PSTools.zip -OutFile C:\Temp\PSTools.zip
+                        }
+                    catch
+                        {
+                            Write-Host "Unable to setup PsExec for remote execution, download error."
+                            exit
+                        }
+
+                    $ehash  = "A9CA77DFE03CE15004157727BB43BA66F00CEB215362C9B3D199F000EDAA8D61"
+                    $efh = Get-FileHash -Path "C:\Temp\PSTools.zip" | Select-Object -ExpandProperty Hash
+
+                    If ($ehash -ne $efh)
+                        {
+                            Write-Host "Unable to setup PsExec for remote execution, hash mismatch."
+                            exit
+                        }
                     Expand-Archive -Path "C:\Temp" -DestinationPath "C:\"
                     Remove-Item -Path C:\Temp\PSTools.zip
             }
