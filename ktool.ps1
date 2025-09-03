@@ -31,32 +31,32 @@ Function Net-Cleanup
 
         if ($LOCUSR -ne "nobody.here")
             {
-                Get-Process -Name "*Edge*" | Stop-Process -Force
-                Get-Process -Name "*Chrome*" | Stop-Process -Force
+                Get-Process -Name "*msedge" | Stop-Process -Force -ErrorAction SilentlyContinue
+                Get-Process -Name "*Chrome*" | Stop-Process -Force -ErrorAction SilentlyContinue
 
                 echo "CLEARING INTERNET CACHE"
-                Remove-Item -path "C:\Users\$LOCUSR\AppData\Local\Microsoft\Windows\Edge\User Data\Default\Cache\Cache_Data\*" -Recurse -Force -EA SilentlyContinue
-                Remove-Item -path "C:\Users\$LOCUSR\AppData\Local\Microsoft\Windows\Edge\User Data\Default\Network\Cookies" -Force -EA SilentlyContinue
-                Remove-Item -path "C:\Users\$LOCUSR\AppData\Local\Microsoft\Windows\Edge\User Data\Default\Network\Cookies-journal" -Force -EA SilentlyContinue
+                Remove-Item -path "C:\Users\$LOCUSR\AppData\Local\Microsoft\Windows\Edge\User Data\Default\Cache\Cache_Data\*" -Recurse -Force -ErrorAction SilentlyContinue
+                Remove-Item -path "C:\Users\$LOCUSR\AppData\Local\Microsoft\Windows\Edge\User Data\Default\Network\Cookies" -Force -ErrorAction SilentlyContinue
+                Remove-Item -path "C:\Users\$LOCUSR\AppData\Local\Microsoft\Windows\Edge\User Data\Default\Network\Cookies-journal" -Force -ErrorAction SilentlyContinue
                 Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Cleared Internet cache."
 
                 echo "CLEARING CHROME CACHE"
-                Remove-Item -path "C:\Users\$LOCUSR\AppData\Google\Chrome\User Data\Default\Cache\*" -Recurse -Force -EA SilentlyContinue
-                Remove-Item -path "C:\Users\$LOCUSR\AppData\Google\Chrome\User Data\Default\Cookies" -Recurse -Force -EA SilentlyContinue 
-                Remove-Item -path "C:\Users\$LOCUSR\AppData\Google\Chrome\User Data\Default\Media Cache" -Recurse -Force -EA SilentlyContinue
-                Remove-Item -path "C:\Users\$LOCUSR\AppData\Google\Chrome\User Data\Default\Cookies-Journal" -Recurse -Force -EA SilentlyContinue
-                Remove-Item "C:\Users\$LOCUSR\AppData\Google\Chrome\User Data\Default\Network\Cookies" -Force -EA SilentlyContinue 
-                Remove-Item "C:\Users\$LOCUSR\AppData\Google\Chrome\User Data\Default\Network\Media Cache" -Force -EA SilentlyContinue
-                Remove-Item "C:\Users\$LOCUSR\AppData\Google\Chrome\User Data\Default\Network\Cookies-Journal" -Force -EA SilentlyContinue
+                Remove-Item -path "C:\Users\$LOCUSR\AppData\Google\Chrome\User Data\Default\Cache\*" -Recurse -Force -ErrorAction SilentlyContinue
+                Remove-Item -path "C:\Users\$LOCUSR\AppData\Google\Chrome\User Data\Default\Cookies" -Recurse -Force -ErrorAction SilentlyContinue 
+                Remove-Item -path "C:\Users\$LOCUSR\AppData\Google\Chrome\User Data\Default\Media Cache" -Recurse -Force -ErrorAction SilentlyContinue
+                Remove-Item -path "C:\Users\$LOCUSR\AppData\Google\Chrome\User Data\Default\Cookies-Journal" -Recurse -Force -ErrorAction SilentlyContinue
+                Remove-Item "C:\Users\$LOCUSR\AppData\Google\Chrome\User Data\Default\Network\Cookies" -Force -ErrorAction SilentlyContinue 
+                Remove-Item "C:\Users\$LOCUSR\AppData\Google\Chrome\User Data\Default\Network\Media Cache" -Force -ErrorAction SilentlyContinue
+                Remove-Item "C:\Users\$LOCUSR\AppData\Google\Chrome\User Data\Default\Network\Cookies-Journal" -Force -ErrorAction SilentlyContinue
                 Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Cleared Chrome cache."
                 echo "DONE"
 
-                Remove-Item C:\users\$LOCUSR\AppData\Local\Temp\* -Recurse -Force
+                Remove-Item C:\users\$LOCUSR\AppData\Local\Temp\* -Recurse -Force -ErrorAction SilentlyContinue
             }
 
         echo "CLEARING LOCAL CACHE"
-        Remove-Item C:\Windows\Temp\* -Recurse -Force
-        Remove-Item C:\Windows\Prefetch\* -Recurse -Force
+        Remove-Item C:\Windows\Temp\* -Recurse -Force -ErrorAction SilentlyContinue
+        Remove-Item C:\Windows\Prefetch\* -Recurse -Force -ErrorAction SilentlyContinue
         Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Cleared local cache."
         echo "DONE"
 
@@ -87,7 +87,7 @@ Function Windows-Repair
         echo "DONE"
 
         echo "REPAIRING MICROSOFT COMPONENTS"
-        Get-AppXPackage -allusers | Foreach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"} | Out-Null
+        Get-AppXPackage -allusers | Foreach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml" -ErrorAction SilentlyContinue}
         echo "DONE"
 
         echo "UPDATING GROUP POLICY"
@@ -510,13 +510,11 @@ Function Reboot-PC
     {
         echo "REBOOTING WORKSTATION"
         Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Rebooted."
-        Set-ExecutionPolicy -ExecutionPolicy Default -Scope MachinePolicy
         Start-Sleep -Seconds 10 ; Restart-Computer -Force
     }
 
 Function Delete-Self
     {
-        Set-ExecutionPolicy -ExecutionPolicy Default -Scope MachinePolicy
         Remove-Item C:\Temp\ktool.ps1
     } 
 
@@ -579,7 +577,6 @@ Switch ($opt)
     {
     Default
             {
-                Set-ExecutionPolicy -ExecutionPolicy Default -Scope MachinePolicy
                 echo "DONE"
                 Delete-Self
             }
@@ -607,32 +604,32 @@ Function Net-Cleanup
     {    
         if ($LOCUSR -ne "nobody.here")
             {
-                Get-Process -Name "*Edge*" | Stop-Process -Force
-                Get-Process -Name "*Chrome*" | Stop-Process -Force
+                Get-Process -Name "*msedge" | Stop-Process -Force -ErrorAction SilentlyContinue
+                Get-Process -Name "*Chrome*" | Stop-Process -Force -ErrorAction SilentlyContinue
 
                 echo "CLEARING INTERNET CACHE"
-                Remove-Item -path "C:\Users\$LOCUSR\AppData\Local\Microsoft\Windows\Edge\User Data\Default\Cache\Cache_Data\*" -Recurse -Force -EA SilentlyContinue
-                Remove-Item -path "C:\Users\$LOCUSR\AppData\Local\Microsoft\Windows\Edge\User Data\Default\Network\Cookies" -Force -EA SilentlyContinue
-                Remove-Item -path "C:\Users\$LOCUSR\AppData\Local\Microsoft\Windows\Edge\User Data\Default\Network\Cookies-journal" -Force -EA SilentlyContinue
+                Remove-Item -path "C:\Users\$LOCUSR\AppData\Local\Microsoft\Windows\Edge\User Data\Default\Cache\Cache_Data\*" -Recurse -Force -ErrorAction SilentlyContinue
+                Remove-Item -path "C:\Users\$LOCUSR\AppData\Local\Microsoft\Windows\Edge\User Data\Default\Network\Cookies" -Force -ErrorAction SilentlyContinue
+                Remove-Item -path "C:\Users\$LOCUSR\AppData\Local\Microsoft\Windows\Edge\User Data\Default\Network\Cookies-journal" -Force -ErrorAction SilentlyContinue
                 Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Cleared Internet cache."
 
                 echo "CLEARING CHROME CACHE"
-                Remove-Item -path "C:\Users\$LOCUSR\AppData\Google\Chrome\User Data\Default\Cache\*" -Recurse -Force -EA SilentlyContinue
-                Remove-Item -path "C:\Users\$LOCUSR\AppData\Google\Chrome\User Data\Default\Cookies" -Recurse -Force -EA SilentlyContinue 
-                Remove-Item -path "C:\Users\$LOCUSR\AppData\Google\Chrome\User Data\Default\Media Cache" -Recurse -Force -EA SilentlyContinue
-                Remove-Item -path "C:\Users\$LOCUSR\AppData\Google\Chrome\User Data\Default\Cookies-Journal" -Recurse -Force -EA SilentlyContinue
-                Remove-Item "C:\Users\$LOCUSR\AppData\Google\Chrome\User Data\Default\Network\Cookies" -Force -EA SilentlyContinue 
-                Remove-Item "C:\Users\$LOCUSR\AppData\Google\Chrome\User Data\Default\Network\Media Cache" -Force -EA SilentlyContinue
-                Remove-Item "C:\Users\$LOCUSR\AppData\Google\Chrome\User Data\Default\Network\Cookies-Journal" -Force -EA SilentlyContinue
+                Remove-Item -path "C:\Users\$LOCUSR\AppData\Google\Chrome\User Data\Default\Cache\*" -Recurse -Force -ErrorAction SilentlyContinue
+                Remove-Item -path "C:\Users\$LOCUSR\AppData\Google\Chrome\User Data\Default\Cookies" -Recurse -Force -ErrorAction SilentlyContinue 
+                Remove-Item -path "C:\Users\$LOCUSR\AppData\Google\Chrome\User Data\Default\Media Cache" -Recurse -Force -ErrorAction SilentlyContinue
+                Remove-Item -path "C:\Users\$LOCUSR\AppData\Google\Chrome\User Data\Default\Cookies-Journal" -Recurse -Force -ErrorAction SilentlyContinue
+                Remove-Item "C:\Users\$LOCUSR\AppData\Google\Chrome\User Data\Default\Network\Cookies" -Force -ErrorAction SilentlyContinue 
+                Remove-Item "C:\Users\$LOCUSR\AppData\Google\Chrome\User Data\Default\Network\Media Cache" -Force -ErrorAction SilentlyContinue
+                Remove-Item "C:\Users\$LOCUSR\AppData\Google\Chrome\User Data\Default\Network\Cookies-Journal" -Force -ErrorAction SilentlyContinue
                 Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Cleared Chrome cache."
                 echo "DONE"
 
-                Remove-Item C:\users\$LOCUSR\AppData\Local\Temp\* -Recurse -Force
+                Remove-Item C:\users\$LOCUSR\AppData\Local\Temp\* -Recurse -Force -ErrorAction SilentlyContinue
             }
 
         echo "CLEARING LOCAL CACHE"
-        Remove-Item C:\Windows\Temp\* -Recurse -Force
-        Remove-Item C:\Windows\Prefetch\* -Recurse -Force
+        Remove-Item C:\Windows\Temp\* -Recurse -Force -ErrorAction SilentlyContinue
+        Remove-Item C:\Windows\Prefetch\* -Recurse -Force -ErrorAction SilentlyContinue
         Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Cleared local cache."
         echo "DONE"
 
@@ -663,7 +660,7 @@ Function Windows-Repair
         echo "DONE"
 
         echo "REPAIRING MICROSOFT COMPONENTS"
-        Get-AppXPackage -allusers | Foreach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"} | Out-Null
+        Get-AppXPackage -allusers | Foreach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml" -ErrorAction SilentlyContinue}
         echo "DONE"
 
         echo "UPDATING GROUP POLICY"
@@ -1267,7 +1264,8 @@ Function Ktool-Remote
         elseif($runr -eq "notes")
             {
                 Clear-Content C:\temp\tix.txt
-                Get-Content -Path "\\$opt\C$\Temp\ktlog.txt" | ForEach-Object { $_.Substring(15) } | Out-File c:\temp\tix.txt
+                $today = Get-Date -Format "MM.dd.yy"
+                Get-Content -Path "\\$opt\C$\Temp\ktlog.txt" | Where-Object { $_.StartsWith($today) } | Where-Object { $_ -match "^\d{2}" } | ForEach-Object { $_.Substring(15) } | Out-File c:\temp\tix.txt
                 Start-Process 'C:\Windows\Notepad.exe' C:\temp\tix.txt
                 Clear-Variable -Name "Command"
                 Exit
@@ -1311,6 +1309,10 @@ Function Ktool-Remote
             {
                 Set-Variable -name Option -Value "delete"
             }
+        else
+            {
+                Set-Variable -name Option -Value ""
+            }        
 
         if (Test-Path -path \\$opt\c$\Temp)
             {
@@ -1326,7 +1328,8 @@ Function Ktool-Remote
         Clear-Variable -Name "Command"
         Clear-Variable -Name "Option"
         Clear-Content C:\temp\tix.txt
-        Get-Content -Path "\\$opt\C$\Temp\ktlog.txt" | ForEach-Object { $_.Substring(15) } | Out-File c:\temp\tix.txt
+        $today = Get-Date -Format "MM.dd.yy"
+        Get-Content -Path "\\$opt\C$\Temp\ktlog.txt" | Where-Object { $_.StartsWith($today) } | Where-Object { $_ -match "^\d{2}" } | ForEach-Object { $_.Substring(15) } | Out-File c:\temp\tix.txt
         Start-Process 'C:\Windows\Notepad.exe' C:\temp\tix.txt
     
     }
@@ -1334,13 +1337,13 @@ Function Reboot-PC
     {
         echo "REBOOTING WORKSTATION"
         Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Rebooted."
-        Set-ExecutionPolicy -ExecutionPolicy Default -Scope MachinePolicy
+        Set-ExecutionPolicy -ExecutionPolicy Default
         Start-Sleep -Seconds 10 ; Restart-Computer -Force
     }
 
 Function Delete-Self
     {
-        Set-ExecutionPolicy -ExecutionPolicy Default -Scope MachinePolicy
+        Set-ExecutionPolicy -ExecutionPolicy Default
         Remove-Item C:\Temp\ktool.ps1
     } 
 Function Zatanna-Translate
@@ -1460,9 +1463,8 @@ Switch ($opt)
     {
     Default
             {
-                Set-ExecutionPolicy -ExecutionPolicy Default -Scope MachinePolicy
+                Set-ExecutionPolicy -ExecutionPolicy Default
                 echo "DONE"
-                Delete-Self
             }
     auto    
             {
