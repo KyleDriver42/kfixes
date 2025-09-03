@@ -34,13 +34,13 @@ Function Net-Cleanup
                 Get-Process -Name "*msedge" | Stop-Process -Force -ErrorAction SilentlyContinue
                 Get-Process -Name "*Chrome*" | Stop-Process -Force -ErrorAction SilentlyContinue
 
-                echo "CLEARING INTERNET CACHE"
+                Write-Host "CLEARING INTERNET CACHE"
                 Remove-Item -path "C:\Users\$LOCUSR\AppData\Local\Microsoft\Windows\Edge\User Data\Default\Cache\Cache_Data\*" -Recurse -Force -ErrorAction SilentlyContinue
                 Remove-Item -path "C:\Users\$LOCUSR\AppData\Local\Microsoft\Windows\Edge\User Data\Default\Network\Cookies" -Force -ErrorAction SilentlyContinue
                 Remove-Item -path "C:\Users\$LOCUSR\AppData\Local\Microsoft\Windows\Edge\User Data\Default\Network\Cookies-journal" -Force -ErrorAction SilentlyContinue
                 Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Cleared Internet cache."
 
-                echo "CLEARING CHROME CACHE"
+                Write-Host "CLEARING CHROME CACHE"
                 Remove-Item -path "C:\Users\$LOCUSR\AppData\Google\Chrome\User Data\Default\Cache\*" -Recurse -Force -ErrorAction SilentlyContinue
                 Remove-Item -path "C:\Users\$LOCUSR\AppData\Google\Chrome\User Data\Default\Cookies" -Recurse -Force -ErrorAction SilentlyContinue 
                 Remove-Item -path "C:\Users\$LOCUSR\AppData\Google\Chrome\User Data\Default\Media Cache" -Recurse -Force -ErrorAction SilentlyContinue
@@ -49,27 +49,27 @@ Function Net-Cleanup
                 Remove-Item "C:\Users\$LOCUSR\AppData\Google\Chrome\User Data\Default\Network\Media Cache" -Force -ErrorAction SilentlyContinue
                 Remove-Item "C:\Users\$LOCUSR\AppData\Google\Chrome\User Data\Default\Network\Cookies-Journal" -Force -ErrorAction SilentlyContinue
                 Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Cleared Chrome cache."
-                echo "DONE"
+                Write-Host "DONE"
 
                 Remove-Item C:\users\$LOCUSR\AppData\Local\Temp\* -Recurse -Force -ErrorAction SilentlyContinue
             }
 
-        echo "CLEARING LOCAL CACHE"
+        Write-Host "CLEARING LOCAL CACHE"
         Remove-Item C:\Windows\Temp\* -Recurse -Force -ErrorAction SilentlyContinue
         Remove-Item C:\Windows\Prefetch\* -Recurse -Force -ErrorAction SilentlyContinue
         Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Cleared local cache."
-        echo "DONE"
+        Write-Host "DONE"
 
-        echo "FLUSHING DNS"
+        Write-Host "FLUSHING DNS"
         cmd.exe /c ipconfig /flushdns
         Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Flushed DNS."
-        echo "DONE"
+        Write-Host "DONE"
     }
 
 Function Windows-Repair
     {
         #This is the dumbest possible way to do this but it's the only way I could get to work in this version of PS.
-        echo "REPAIRING WINDOWS IMAGE"
+        Write-Host "REPAIRING WINDOWS IMAGE"
         $dismtimer = "Start-Sleep -Seconds 600
         cmd /c 'taskkill /IM dism.exe /F'"
 
@@ -79,21 +79,22 @@ Function Windows-Repair
         dism /online /cleanup-image /restorehealth
         Remove-Item "C:\temp\dt.ps1" 
         Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Ran DISM."
-        echo "DONE."
+        Write-Host "DONE."
 
-        echo "RUNNING SYSTEM FILE CHECK"
+        Write-Host "RUNNING SYSTEM FILE CHECK"
         sfc /scannow
         Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Ran SFC."
-        echo "DONE"
+        Write-Host "DONE"
 
-        echo "REPAIRING MICROSOFT COMPONENTS"
-        Get-AppXPackage -allusers | Foreach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml" -ErrorAction SilentlyContinue}
-        echo "DONE"
+        Write-Host "REPAIRING MICROSOFT COMPONENTS"
+        Get-AppXPackage | Foreach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"} -ErrorAction SilentlyContinue
+        Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Re-registered Micreosoft components."
+        Write-Host "DONE"
 
-        echo "UPDATING GROUP POLICY"
-        cmd.exe /c echo n | gpupdate /force /wait:0
-        Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Re-Registered Microsoft components."
-        echo "DONE"   
+        Write-Host "UPDATING GROUP POLICY"
+        cmd.exe /c Write-Host n | gpupdate /force /wait:0
+        Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Ran GPUpdate."
+        Write-Host "DONE"  
     }
 Function Run-WinUpdate
     {    
@@ -284,7 +285,7 @@ Function Repair-Office
         $command86 = ' 
         cmd.exe /C "C:\Program Files\Microsoft Office 15\ClientX86\OfficeClickToRun.exe" scenario=Repair platform=x86 culture=en-us RepairType=QuickRepair forceappshutdown=True DisplayLevel=False
         '
-        echo "REPAIRING OFFICE"
+        Write-Host "REPAIRING OFFICE"
         if(Test-Path -Path "C:\Program Files\Microsoft Office 15\ClientX64\OfficeClickToRun.exe")
             {
             Invoke-Expression -Command:$command64
@@ -293,7 +294,7 @@ Function Repair-Office
             {
                 Invoke-Expression -Command:$command86
             }
-        echo "DONE"
+        Write-Host "DONE"
         Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Ran Online Office repair."
     }
 Function Clear-Slack
@@ -508,7 +509,7 @@ Function Post-Image
     }
 Function Reboot-PC
     {
-        echo "REBOOTING WORKSTATION"
+        Write-Host "REBOOTING WORKSTATION"
         Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Rebooted."
         Start-Sleep -Seconds 10 ; Restart-Computer -Force
     }
@@ -522,7 +523,7 @@ Switch ($run)
     {
         Default
             {
-                echo "Unrecognized Command. Run 'help' for a list of commands."
+                Write-Host "Unrecognized Command. Run 'help' for a list of commands."
             }
         repair
             {
@@ -577,7 +578,7 @@ Switch ($opt)
     {
     Default
             {
-                echo "DONE"
+                Write-Host "DONE"
                 Delete-Self
             }
     auto    
@@ -588,12 +589,12 @@ Switch ($opt)
                 
     reboot
             {
-                echo "DONE"
+                Write-Host "DONE"
                 Reboot-PC
             }
     delete
             {
-                echo "DONE"
+                Write-Host "DONE"
                 Delete-Self
             } 
     }
@@ -607,13 +608,13 @@ Function Net-Cleanup
                 Get-Process -Name "*msedge" | Stop-Process -Force -ErrorAction SilentlyContinue
                 Get-Process -Name "*Chrome*" | Stop-Process -Force -ErrorAction SilentlyContinue
 
-                echo "CLEARING INTERNET CACHE"
+                Write-Host "CLEARING INTERNET CACHE"
                 Remove-Item -path "C:\Users\$LOCUSR\AppData\Local\Microsoft\Windows\Edge\User Data\Default\Cache\Cache_Data\*" -Recurse -Force -ErrorAction SilentlyContinue
                 Remove-Item -path "C:\Users\$LOCUSR\AppData\Local\Microsoft\Windows\Edge\User Data\Default\Network\Cookies" -Force -ErrorAction SilentlyContinue
                 Remove-Item -path "C:\Users\$LOCUSR\AppData\Local\Microsoft\Windows\Edge\User Data\Default\Network\Cookies-journal" -Force -ErrorAction SilentlyContinue
                 Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Cleared Internet cache."
 
-                echo "CLEARING CHROME CACHE"
+                Write-Host "CLEARING CHROME CACHE"
                 Remove-Item -path "C:\Users\$LOCUSR\AppData\Google\Chrome\User Data\Default\Cache\*" -Recurse -Force -ErrorAction SilentlyContinue
                 Remove-Item -path "C:\Users\$LOCUSR\AppData\Google\Chrome\User Data\Default\Cookies" -Recurse -Force -ErrorAction SilentlyContinue 
                 Remove-Item -path "C:\Users\$LOCUSR\AppData\Google\Chrome\User Data\Default\Media Cache" -Recurse -Force -ErrorAction SilentlyContinue
@@ -622,27 +623,27 @@ Function Net-Cleanup
                 Remove-Item "C:\Users\$LOCUSR\AppData\Google\Chrome\User Data\Default\Network\Media Cache" -Force -ErrorAction SilentlyContinue
                 Remove-Item "C:\Users\$LOCUSR\AppData\Google\Chrome\User Data\Default\Network\Cookies-Journal" -Force -ErrorAction SilentlyContinue
                 Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Cleared Chrome cache."
-                echo "DONE"
+                Write-Host "DONE"
 
                 Remove-Item C:\users\$LOCUSR\AppData\Local\Temp\* -Recurse -Force -ErrorAction SilentlyContinue
             }
 
-        echo "CLEARING LOCAL CACHE"
+        Write-Host "CLEARING LOCAL CACHE"
         Remove-Item C:\Windows\Temp\* -Recurse -Force -ErrorAction SilentlyContinue
         Remove-Item C:\Windows\Prefetch\* -Recurse -Force -ErrorAction SilentlyContinue
         Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Cleared local cache."
-        echo "DONE"
+        Write-Host "DONE"
 
-        echo "FLUSHING DNS"
+        Write-Host "FLUSHING DNS"
         cmd.exe /c ipconfig /flushdns
         Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Flushed DNS."
-        echo "DONE"
+        Write-Host "DONE"
     }
 
 Function Windows-Repair
     {
         #This is the dumbest possible way to do this but it's the only way I could get to work in this version of PS.
-        echo "REPAIRING WINDOWS IMAGE"
+        Write-Host "REPAIRING WINDOWS IMAGE"
         $dismtimer = "Start-Sleep -Seconds 600
         cmd /c 'taskkill /IM dism.exe /F'"
 
@@ -652,21 +653,22 @@ Function Windows-Repair
         dism /online /cleanup-image /restorehealth
         Remove-Item "C:\temp\dt.ps1" 
         Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Ran DISM."
-        echo "DONE."
+        Write-Host "DONE."
 
-        echo "RUNNING SYSTEM FILE CHECK"
+        Write-Host "RUNNING SYSTEM FILE CHECK"
         sfc /scannow
         Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Ran SFC."
-        echo "DONE"
+        Write-Host "DONE"
 
-        echo "REPAIRING MICROSOFT COMPONENTS"
-        Get-AppXPackage -allusers | Foreach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml" -ErrorAction SilentlyContinue}
-        echo "DONE"
+        Write-Host "REPAIRING MICROSOFT COMPONENTS"
+        Get-AppXPackage | Foreach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"} -ErrorAction SilentlyContinue
+        Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Re-registered Micreosoft components."
+        Write-Host "DONE"
 
-        echo "UPDATING GROUP POLICY"
-        cmd.exe /c echo n | gpupdate /force /wait:0
-        Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Re-Registered Microsoft components."
-        echo "DONE"   
+        Write-Host "UPDATING GROUP POLICY"
+        cmd.exe /c Write-Host n | gpupdate /force /wait:0
+        Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Ran GPUpdate."
+        Write-Host "DONE"   
     }
 Function Run-WinUpdate
     {    
@@ -848,7 +850,7 @@ Function Repair-Office
         $command86 = ' 
         cmd.exe /C "C:\Program Files\Microsoft Office 15\ClientX86\OfficeClickToRun.exe" scenario=Repair platform=x86 culture=en-us RepairType=QuickRepair forceappshutdown=True DisplayLevel=False
         '
-        echo "REPAIRING OFFICE"
+        Write-Host "REPAIRING OFFICE"
         if(Test-Path -Path "C:\Program Files\Microsoft Office 15\ClientX64\OfficeClickToRun.exe")
             {
             Invoke-Expression -Command:$command64
@@ -857,7 +859,7 @@ Function Repair-Office
             {
                 Invoke-Expression -Command:$command86
             }
-        echo "DONE"
+        Write-Host "DONE"
         Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Ran Online Office repair."
     }
 Function Clear-Slack
@@ -866,7 +868,7 @@ Function Clear-Slack
             {
                 $LOCUSR = Read-Host "Enter username of Slack account to clear"
             }
-        Get-Process -Name *Slack* -ErrorAction SilentlyContinue | Stop-Process -Force 
+        Get-Process -Name *Slack* | Stop-Process -Force -ErrorAction SilentlyContinue
         Remove-Item -Recurse -Path "C:\Users\$LOCUSR\AppData\Roaming\Slack\Cache\Cache_Data"
         Remove-Item -Recurse -Path "C:\Users\$LOCUSR\AppData\Roaming\Slack\Code Cache\js"
         Remove-Item -Recurse -Path "C:\Users\$LOCUSR\AppData\Roaming\Slack\Code Cache\wasm"
@@ -901,11 +903,11 @@ Function Get-Info
     {
         $cinfo= Get-ComputerInfo -Property CsModel, CsDomain, WindowsRegisteredOrganization, OsLocalDateTime, OsLastBootUpTime
         $uinfo= get-ADUser $LOCUSR -Properties passwordlastset, passwordexpired, passwordneverexpires
-        echo "COMPUTER INFORMATION"
-        echo $cinfo
+        Write-Host "COMPUTER INFORMATION"
+        Write-Host $cinfo
 
-        echo "USER INFORMATION"
-        echo $uinfo
+        Write-Host "USER INFORMATION"
+        Write-Host $uinfo
         exit
     }
 
@@ -1212,6 +1214,14 @@ Function Ktool-Remote
             {
                 Set-Variable -name Command -Value "winupdate"
             }
+        elseif($runr -eq "printq")
+            {
+                Set-Variable -name Command -Value "printq"
+            }
+        elseif($runr -eq "network")
+            {
+                Set-Variable -name Command -Value "network"
+            }
         elseif($runr -eq "hpdrivers")
             {
                 Set-Variable -name Command -Value "hpdrivers"
@@ -1226,7 +1236,7 @@ Function Ktool-Remote
             }
         elseif($runr -eq "postimage")
             {
-                Set-Variable -name Command -Value "slackcache"
+                Set-Variable -name Command -Value "postimage"
             }
         elseif($runr -eq "errorlog")
             {
@@ -1238,28 +1248,27 @@ Function Ktool-Remote
                 Start-Sleep -Seconds 15
                 [void] (New-PSDrive -ErrorAction "Stop" -name "WlanTestDrive" -root "\\$opt\C$" -PSProvider FileSystem -Scope Local)
                 C:\PsExec.exe \\$opt netsh wlan show wlanreport
-                Remove-Item 'C:\Temp\WLanReport' -Recurse
-                New-Item 'C:\Temp\WLanReport' -ItemType Directory
-                Copy-Item -path $optPath -Destination "C:\temp\WlanReport\"
+                if (-not (Test-Path -Path 'C:\Temp\WLanReport'))
+                    {
+                        New-Item 'C:\Temp\WLanReport' -ItemType Directory
+                    }
+                Copy-Item -path $optPath -Destination "C:\temp\WlanReport\" | Out-Null
                 start-process "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe" C:\Temp\WLanReport\wlan-report-latest.html 
                 Remove-PSDrive -name "WlanTestDrive"
-                Clear-Variable -Name "Command"
                 exit
             }
         elseif($runr -eq "battery")
             {
-                [void] (New-PSDrive -ErrorAction "Stop" -name "WlanTestDrive" -root "\\$opt\C$" -PSProvider FileSystem -Scope Local)
+                [void] (New-PSDrive -ErrorAction "Stop" -name "BatTestDrive" -root "\\$opt\C$" -PSProvider FileSystem -Scope Local)
                 C:\PsExec.exe \\$opt powercfg /batteryreport /output C:\temp\$opt-battery_report.html
                 Copy-Item \\$opt\c$\temp\$opt-battery_report.html -Destination c:\temp
                 start-process "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe" C:\temp\$opt-battery_report.html
-                Remove-PSDrive -name "WlanTestDrive"
-                Clear-Variable -Name "Command"
+                Remove-PSDrive -name "BatTestDrive"
                 exit
             }
         elseif($runr -eq "pkill")
             {
             C:\PsExec.exe \\$opt powershell.exe "Get-Process -Name "*$optr*" | Stop-Process -Force"
-            Clear-Variable -Name "Command"
             }
         elseif($runr -eq "notes")
             {
@@ -1267,7 +1276,6 @@ Function Ktool-Remote
                 $today = Get-Date -Format "MM.dd.yy"
                 Get-Content -Path "\\$opt\C$\Temp\ktlog.txt" | Where-Object { $_.StartsWith($today) } | Where-Object { $_ -match "^\d{2}" } | ForEach-Object { $_.Substring(15) } | Out-File c:\temp\tix.txt
                 Start-Process 'C:\Windows\Notepad.exe' C:\temp\tix.txt
-                Clear-Variable -Name "Command"
                 Exit
             }
         elseif($runr -eq "progress")
@@ -1276,25 +1284,25 @@ Function Ktool-Remote
                     if (Test-Path -path \\$opt\c$\Temp)
                         {
                             Get-Content \\$opt\C$\Temp\ktlog.txt
-                            Clear-Variable -Name "Command"
                             exit
                         }
                     else
                         {
-                        echo "Waiting for Host..."
+                        Write-Host "Waiting for Host..."
                             Do {
                                     Start-Sleep -seconds 30
-                                    echo "Still Waiting..."
+                                    Write-Host "Still Waiting..."
                                 }
                             Until (Test-Path -path \\$opt\c$\Temp)
                             Get-Content \\$opt\C$\Temp\ktlog.txt
-                            Clear-Variable -Name "Command"
                             exit
                         }
             }
         else
             {
-                echo "Unrecognized Command. Run 'help' for a list of commands."
+                Set-Variable -name Command -Value ""
+                Write-Host "Unrecognized Command. Run 'help' for a list of commands."
+                exit
             }
 
         if($optr -eq "auto")
@@ -1320,7 +1328,7 @@ Function Ktool-Remote
             }
         else
             {
-                echo "HOST NOT FOUND."
+                Write-Host "HOST NOT FOUND."
                 exit
             }
 
@@ -1335,7 +1343,7 @@ Function Ktool-Remote
     }
 Function Reboot-PC
     {
-        echo "REBOOTING WORKSTATION"
+        Write-Host "REBOOTING WORKSTATION"
         Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Rebooted."
         Set-ExecutionPolicy -ExecutionPolicy Default
         Start-Sleep -Seconds 10 ; Restart-Computer -Force
@@ -1427,7 +1435,7 @@ Switch ($run)
             }
         help
             {
-                echo "------COMMANDS------
+                Write-Host "------COMMANDS------
             repair		Clear cache (browser and local), run Windows repairs, HP Driver updates, and Windows updates
             lightrepair	Run Windows repairs only
             cache		Clear cache (browser and local)
@@ -1464,7 +1472,7 @@ Switch ($opt)
     Default
             {
                 Set-ExecutionPolicy -ExecutionPolicy Default
-                echo "DONE"
+                Write-Host "DONE"
             }
     auto    
             {
@@ -1474,12 +1482,12 @@ Switch ($opt)
                 
     reboot
             {
-                echo "DONE"
+                Write-Host "DONE"
                 Reboot-PC
             }
     delete
             {
-                echo "DONE"
+                Write-Host "DONE"
                 Delete-Self
             } 
     }
