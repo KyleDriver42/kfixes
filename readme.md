@@ -66,7 +66,6 @@ Flags are optional parameters that control the script's behavior after the main 
 * `auto`: Automatically reboots the computer and deletes the script after execution.  
 * `reboot`: Reboots the computer but does not delete the script.  
 * `delete`: Deletes the script but does not reboot the computer.  
-* No flag: The script will finish and then delete itself.
 
 ---
 
