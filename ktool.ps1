@@ -572,6 +572,10 @@ Switch ($run)
             {
                 Get-RecentErrors
             }
+        pkill
+            {
+                P-Kill
+            }
 
     }
 Switch ($opt)
@@ -661,7 +665,7 @@ Function Windows-Repair
 
         Write-Host "REPAIRING MICROSOFT COMPONENTS"
         Get-AppXPackage | Foreach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"} -ErrorAction SilentlyContinue
-        Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Re-registered Micreosoft components."
+        Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Re-registered Microsoft components."
         Write-Host "DONE"
 
         Write-Host "UPDATING GROUP POLICY"
@@ -1222,11 +1226,15 @@ Function Ktool-Remote
             {
                 Set-Variable -name Command -Value "repair"
             }
+        elseif($runr -eq "lightrepair")
+            {
+                Set-Variable -name Command -Value "lightrepair"
+            }
         elseif($runr -eq "cache")
             {
                 Set-Variable -name Command -Value "cache"
             }
-        elseif($runr -eq "winudate")
+        elseif($runr -eq "winupdate")
             {
                 Set-Variable -name Command -Value "winupdate"
             }
