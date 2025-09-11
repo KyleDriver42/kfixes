@@ -277,25 +277,27 @@ Function Clear-PrintQueue
     }
 Function Repair-Office
     {
-        Get-Process -Name *Excel* -ErrorAction SilentlyContinue | Stop-Process -Force 
-        Get-Process -Name *Word* -ErrorAction SilentlyContinue | Stop-Process -Force
-        $command64 = ' 
-        cmd.exe /C "C:\Program Files\Microsoft Office 15\ClientX64\OfficeClickToRun.exe" scenario=Repair platform=x64 culture=en-us RepairType=QuickRepair forceappshutdown=True DisplayLevel=False
-        '
-        $command86 = ' 
-        cmd.exe /C "C:\Program Files\Microsoft Office 15\ClientX86\OfficeClickToRun.exe" scenario=Repair platform=x86 culture=en-us RepairType=QuickRepair forceappshutdown=True DisplayLevel=False
-        '
-        Write-Host "REPAIRING OFFICE"
-        if(Test-Path -Path "C:\Program Files\Microsoft Office 15\ClientX64\OfficeClickToRun.exe")
+        Get-Process -Name "WINWORD", "EXCEL", "POWERPNT", "OUTLOOK" -ErrorAction SilentlyContinue | Stop-Process -Force
+        $ExePath = "C:\Program Files\Common Files\microsoft shared\ClickToRun\OfficeC2RClient.exe"
+
+        if ($ExePath)
             {
-            Invoke-Expression -Command:$command64
+                Write-Host "REPAIRING OFFICE"
+                try
+                    {
+                        cmd.exe /C  "C:\Program Files\Common Files\microsoft shared\ClickToRun\OfficeC2RClient.exe" scenario=Repair platform=x86 culture=en-us RepairType=FullRepair forceappshutdown=True DisplayLevel=False
+                        Write-Host "DONE"
+                        Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format 'MM.dd.yy hh:mm') Ran Online Office Repair."
+                    }
+                catch
+                    {
+                        Write-Error "Unable to run Office Repair."
+                    }
             }
-        elseif(Test-PAth -Path "C:\Program Files\Microsoft Office 15\ClientX32\OfficeClickToRun.exe")
+        else
             {
-                Invoke-Expression -Command:$command86
+                Write-Error "Repair Client not found."
             }
-        Write-Host "DONE"
-        Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Ran Online Office repair."
     }
 Function Clear-Slack
     {
@@ -845,26 +847,29 @@ Function Driver-Update
 
 Function Repair-Office
     {
-        Get-Process -Name *Excel* -ErrorAction SilentlyContinue | Stop-Process -Force 
-        Get-Process -Name *Word* -ErrorAction SilentlyContinue | Stop-Process -Force
-        $command64 = ' 
-        cmd.exe /C "C:\Program Files\Microsoft Office 15\ClientX64\OfficeClickToRun.exe" scenario=Repair platform=x64 culture=en-us RepairType=QuickRepair forceappshutdown=True DisplayLevel=False
-        '
-        $command86 = ' 
-        cmd.exe /C "C:\Program Files\Microsoft Office 15\ClientX86\OfficeClickToRun.exe" scenario=Repair platform=x86 culture=en-us RepairType=QuickRepair forceappshutdown=True DisplayLevel=False
-        '
-        Write-Host "REPAIRING OFFICE"
-        if(Test-Path -Path "C:\Program Files\Microsoft Office 15\ClientX64\OfficeClickToRun.exe")
+        Get-Process -Name "WINWORD", "EXCEL", "POWERPNT", "OUTLOOK" -ErrorAction SilentlyContinue | Stop-Process -Force
+        $ExePath = "C:\Program Files\Common Files\microsoft shared\ClickToRun\OfficeC2RClient.exe"
+
+        if ($ExePath)
             {
-            Invoke-Expression -Command:$command64
+                Write-Host "REPAIRING OFFICE"
+                try
+                    {
+                        cmd.exe /C  "C:\Program Files\Common Files\microsoft shared\ClickToRun\OfficeC2RClient.exe" scenario=Repair platform=x86 culture=en-us RepairType=FullRepair forceappshutdown=True DisplayLevel=False
+                        Write-Host "DONE"
+                        Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format 'MM.dd.yy hh:mm') Ran Online Office Repair."
+                    }
+                catch
+                    {
+                        Write-Error "Unable to run Office Repair."
+                    }
             }
-        elseif(Test-PAth -Path "C:\Program Files\Microsoft Office 15\ClientX32\OfficeClickToRun.exe")
+        else
             {
-                Invoke-Expression -Command:$command86
+                Write-Error "Repair Client not found."
             }
-        Write-Host "DONE"
-        Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Ran Online Office repair."
     }
+
 Function Clear-Slack
     {
         if ($LOCUSR -eq "nobody.here")
@@ -1501,7 +1506,7 @@ Switch ($run)
             postimage	Runs PostImage script; hardware tests are skipped if run remotely
             remote		Executes the script on a remote machine. Syntax: c:\temp\ktool.ps1 remote HOSTNAME command flag
             progress	Checks to see if a remote machine is back online after a network disconnect, and shows the progress of the script once it is.
-            notes	    After running the script on a TM's machine, run this locally to generate ticket notes based on the script's logs. Syntax: c:\temp\ktool.ps1 notes HOSTNAME
+            notes	After running the script on a TM's machine, run this locally to generate ticket notes based on the script's logs. Syntax: c:\temp\ktool.ps1 notes HOSTNAME
             ------FLAGS------
             delete		Deletes script after execution, but doesn't reboot.
             reboot		Prevents script from deleting itself after execution, then reboots.
