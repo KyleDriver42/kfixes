@@ -2,7 +2,7 @@
 
 ### **Overview**
 
-KTool is a PowerShell script designed to automate common IT support tasks and make PC maintenance and diagnostics more efficient. It can be run on a local machine or remotely on a connected host, providing a wide range of functions for technicians.
+KTool is a PowerShell script designed to automate common IT support tasks and make PC maintenance and diagnostics more efficient. It can be run on a local machine or remotely from the technician's machine to the user's machine, providing a wide range of functions for technicians.
 
 ---
 
