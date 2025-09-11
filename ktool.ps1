@@ -88,7 +88,7 @@ Function Windows-Repair
 
         Write-Host "REPAIRING MICROSOFT COMPONENTS"
         Get-AppXPackage | Foreach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"} -ErrorAction SilentlyContinue
-        Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Re-registered Micreosoft components."
+        Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Re-registered Microsoft components."
         Write-Host "DONE"
 
         Write-Host "UPDATING GROUP POLICY"
@@ -902,16 +902,28 @@ Function Battery-Report
         powercfg /batteryreport /output C:\temp\$HN-battery_report.html
         start-process "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe" C:\temp\$opt-battery_report.html      
     }
-Function Get-Info
+Function Get-Notes
     {
-        $cinfo= Get-ComputerInfo -Property CsModel, CsDomain, WindowsRegisteredOrganization, OsLocalDateTime, OsLastBootUpTime
-        $uinfo= get-ADUser $LOCUSR -Properties passwordlastset, passwordexpired, passwordneverexpires
-        Write-Host "COMPUTER INFORMATION"
-        Write-Host $cinfo
-
-        Write-Host "USER INFORMATION"
-        Write-Host $uinfo
-        exit
+        Clear-Content C:\temp\tix.txt
+        (Get-Content -Path "\\$opt\C$\Temp\ktlog.txt" -Raw) -split '%' | 
+            Select-Object -Last 1 | 
+            ForEach-Object { 
+                ($_ -split "`n") | 
+                ForEach-Object { 
+                    if ($_ -notlike "*Upgraded Driver: *") {
+                        if ($_.Length -gt 15) {
+                            $_.Substring(15) 
+                        } else {
+                            $_
+                        }
+                    } else {
+                        $_
+                    }
+                }
+            } | 
+            Out-File c:\temp\tix.txt
+            Start-Process 'C:\Windows\Notepad.exe' C:\temp\tix.txt
+        Exit
     }
 
 Function P-Kill
@@ -1294,20 +1306,12 @@ Function Ktool-Remote
             {
             C:\PsExec.exe \\$opt powershell.exe "Get-Process -Name "*$optr*" | Stop-Process -Force"
             }
-        elseif($runr -eq "notes")
-            {
-                Clear-Content C:\temp\tix.txt
-                $today = Get-Date -Format "MM.dd.yy"
-                Get-Content -Path "\\$opt\C$\Temp\ktlog.txt" | Where-Object { $_.StartsWith($today) } | Where-Object { $_ -match "^\d{2}" } | ForEach-Object { $_.Substring(15) } | Out-File c:\temp\tix.txt
-                Start-Process 'C:\Windows\Notepad.exe' C:\temp\tix.txt
-                Exit
-            }
         elseif($runr -eq "progress")
             {
                 cmd /c "ipconfig /flushdns"
                     if (Test-Path -path \\$opt\c$\Temp)
                         {
-                            Get-Content \\$opt\C$\Temp\ktlog.txt
+                            (Get-Content -Path "\\$opt\C$\Temp\ktlog.txt" -Raw) -split '%' | Select-Object -Last 1
                             exit
                         }
                     else
@@ -1356,13 +1360,30 @@ Function Ktool-Remote
                 exit
             }
 
+        Add-Content -Path "\\$opt\C$\Temp\ktlog.txt" "`n%"
         C:\PsExec.exe \\$opt powershell.exe -ExecutionPolicy RemoteSigned -command "c:\temp\ktool.ps1 $Command $Option"
         Clear-Variable -Name "Command"
         Clear-Variable -Name "Option"
         Clear-Content C:\temp\tix.txt
-        $today = Get-Date -Format "MM.dd.yy"
-        Get-Content -Path "\\$opt\C$\Temp\ktlog.txt" | Where-Object { $_.StartsWith($today) } | Where-Object { $_ -match "^\d{2}" } | ForEach-Object { $_.Substring(15) } | Out-File c:\temp\tix.txt
+        (Get-Content -Path "\\$opt\C$\Temp\ktlog.txt" -Raw) -split '%' | 
+            Select-Object -Last 1 | 
+            ForEach-Object { 
+                ($_ -split "`n") | 
+                ForEach-Object { 
+                    if ($_ -notlike "*Upgraded Driver: *") {
+                        if ($_.Length -gt 15) {
+                            $_.Substring(15) 
+                        } else {
+                            $_
+                        }
+                    } else {
+                        $_
+                    }
+                }
+            } | 
+            Out-File c:\temp\tix.txt
         Start-Process 'C:\Windows\Notepad.exe' C:\temp\tix.txt
+    exit
     
     }
 Function Reboot-PC
@@ -1457,6 +1478,10 @@ Switch ($run)
             {
                 Ktool-Remote
             }
+        notes
+            {
+                Get-Notes
+            }
         help
             {
                 Write-Host "------COMMANDS------
@@ -1476,7 +1501,7 @@ Switch ($run)
             postimage	Runs PostImage script; hardware tests are skipped if run remotely
             remote		Executes the script on a remote machine. Syntax: c:\temp\ktool.ps1 remote HOSTNAME command flag
             progress	Checks to see if a remote machine is back online after a network disconnect, and shows the progress of the script once it is.
-            notes	After running the script on a TM's machine, run this locally to generate ticket notes based on the script's logs. Syntax: c:\temp\ktool.ps1 notes HOSTNAME
+            notes	    After running the script on a TM's machine, run this locally to generate ticket notes based on the script's logs. Syntax: c:\temp\ktool.ps1 notes HOSTNAME
             ------FLAGS------
             delete		Deletes script after execution, but doesn't reboot.
             reboot		Prevents script from deleting itself after execution, then reboots.
