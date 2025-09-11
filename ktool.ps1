@@ -1506,7 +1506,7 @@ Switch ($run)
             postimage	Runs PostImage script; hardware tests are skipped if run remotely
             remote		Executes the script on a remote machine. Syntax: c:\temp\ktool.ps1 remote HOSTNAME command flag
             progress	Checks to see if a remote machine is back online after a network disconnect, and shows the progress of the script once it is.
-            notes	After running the script on a TM's machine, run this locally to generate ticket notes based on the script's logs. Syntax: c:\temp\ktool.ps1 notes HOSTNAME
+            notes	    After running the script on a TM's machine, run this locally to generate ticket notes based on the script's logs. Syntax: c:\temp\ktool.ps1 notes HOSTNAME
             ------FLAGS------
             delete		Deletes script after execution, but doesn't reboot.
             reboot		Prevents script from deleting itself after execution, then reboots.
