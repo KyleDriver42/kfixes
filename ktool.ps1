@@ -1369,7 +1369,8 @@ Function Ktool-Remote
         C:\PsExec.exe \\$opt powershell.exe -ExecutionPolicy RemoteSigned -command "c:\temp\ktool.ps1 $Command $Option"
         Clear-Variable -Name "Command"
         Clear-Variable -Name "Option"
-        try
+
+        if (Test-Path -path \\$opt\c$\Temp)
             {
                 Clear-Content C:\temp\tix.txt
                 (Get-Content -Path "\\$opt\C$\Temp\ktlog.txt" -Raw) -split '%' | 
@@ -1391,7 +1392,7 @@ Function Ktool-Remote
                     Out-File c:\temp\tix.txt
                 Start-Process 'C:\Windows\Notepad.exe' C:\temp\tix.txt
             }
-        catch
+        else
             {
             Write-Host "CONNECTION LOST."
             }
