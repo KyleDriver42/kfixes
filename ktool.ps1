@@ -1533,7 +1533,7 @@ Switch ($opt)
     {
     Default
             {
-                #Set-ExecutionPolicy -ExecutionPolicy Default
+                Set-ExecutionPolicy -ExecutionPolicy Default
                 Write-Host "DONE"
             }
     auto    
