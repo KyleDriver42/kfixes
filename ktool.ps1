@@ -671,7 +671,7 @@ Function Windows-Repair
         Write-Host "DONE"
 
         Write-Host "UPDATING GROUP POLICY"
-        cmd.exe /c Write-Host n | gpupdate /force /wait:0
+        cmd.exe /c echo n | gpupdate /force /wait:0
         Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Ran GPUpdate."
         Write-Host "DONE"   
     }
@@ -1533,7 +1533,7 @@ Switch ($opt)
     {
     Default
             {
-                Set-ExecutionPolicy -ExecutionPolicy Default
+                #Set-ExecutionPolicy -ExecutionPolicy Default
                 Write-Host "DONE"
             }
     auto    
