@@ -71,9 +71,9 @@ Flags are optional parameters that control the script's behavior after the main 
 
 **Local Execution**
 
-* Run a full repair and automatically reboot and delete the script: `C:\ktool.ps1 repair auto`  
-* Clear the cache and delete the script when finished: `C:\ktool.ps1 cache delete`  
-* Run hardware diagnostics and keep the script: `C:\ktool.ps1 postimage`
+* Run a full repair and automatically reboot and delete the script: `C:\Temp\ktool.ps1 repair auto`  
+* Clear the cache and delete the script when finished: `C:\Temp\ktool.ps1 cache delete`  
+* Run hardware diagnostics and keep the script: `C:\Temp\ktool.ps1 postimage`
 
 **Remote Execution**
 
