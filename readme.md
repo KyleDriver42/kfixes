@@ -41,7 +41,8 @@ C:\Temp\ktool.ps1 remote <hostname> <command> <flag>
 * `cache`: Clears caches for browsers (Chrome and Edge), Java, and temporary files.  
 * `winupdate`: Checks for and installs available Windows updates.
 * `network`: Resets Winsock, TCP/IP stack, and renews IP address   
-* `hpdrivers`: Uses HP Image Assistant to automatically update drivers, BIOS, and firmware on HP systems.  
+* `hpdrivers`: Uses HP Image Assistant to automatically update drivers, BIOS, and firmware on HP systems.
+* `driverfix`: Reinstall drivers for specific hardware (Does not download new drivers, only reinstalls the current drivers.)  
 * `officerep`: Runs a quick repair for Microsoft Office.
 * `printq`: Clear printer queue  
 * `slackcache`: Clears the cache for the Slack desktop app.  
