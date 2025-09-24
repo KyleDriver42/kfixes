@@ -68,7 +68,6 @@ Function Net-Cleanup
 
 Function Windows-Repair
     {
-        #This is the dumbest possible way to do this but it's the only way I could get to work in this version of PS.
         Write-Host "REPAIRING WINDOWS IMAGE"
         $dismtimer = "Start-Sleep -Seconds 600
         cmd /c 'taskkill /IM dism.exe /F'"
@@ -92,7 +91,7 @@ Function Windows-Repair
         Write-Host "DONE"
 
         Write-Host "UPDATING GROUP POLICY"
-        cmd.exe /c Write-Host n | gpupdate /force /wait:0
+        cmd.exe /c echo n | gpupdate /force /wait:0
         Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Ran GPUpdate."
         Write-Host "DONE"  
     }
@@ -252,6 +251,28 @@ Function Driver-Update
             {
                 Write-Host "Non-HP system, please run updates manually."    
             }
+    }
+Function Reinstall-Drivers
+    {
+        $drivers = Get-PnpDevice
+        $duplicateDrivers = $drivers | Group-Object -Property HardwareID | Where-Object { $_.Count -gt 1 } | Select-Object -ExpandProperty Group
+
+        foreach ($duplicateDriver in $duplicateDrivers)
+        {
+            $duplicateDriver | Select-Object -Skip 1 | ForEach-Object { &"pnputil" /remove-device $_.InstanceId }
+        }
+
+        Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Checked for and uninstalled duplicate or corrupt device drivers."
+                
+        foreach ($dev in (Get-PnpDevice | Where-Object{$_.Name -Match "##DRVR##"}))
+        {
+            &"pnputil" /remove-device $dev.InstanceId
+        }
+
+        Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Reinstalled ##DRVR## drivers."
+
+        Start-Process "cmd.exe" -ArgumentList " /c C:\Windows\System32\pnputil.exe /scan-devices" -Wait -ErrorAction SilentlyContinue
+        Write-Host "DONE"
     }
 Function Clear-PrintQueue
     {
@@ -550,6 +571,10 @@ Switch ($run)
             {
                 Driver-Update
             }
+        driverfix
+            {
+                Reinstall-Drivers
+            }
         officerep
             {
                 Repair-Office
@@ -843,6 +868,83 @@ Function Driver-Update
         {
             Write-Host "Non-HP system, please run updates manually."    
         }
+    }
+
+Function Reinstall-Drivers
+    {
+        Write-Host "Reinstall which drivers?
+
+1. Audio
+2. Bluetooth
+3. Cameras
+4. Graphics Display
+5. Wi-Fi
+6. Ethernet
+7. USB Controller
+8. Cancel
+"
+$select = Read-Host "Select Number"
+
+Switch ($select)
+    {
+        Default
+            {
+                Write-Host "Unrecognized Selection."
+                exit
+            }
+        1
+            {
+              Set-Variable -name drvr -Value "audio"
+            }
+        2
+            {
+              Set-Variable -name drvr -Value "bluetooth"
+            }
+        3
+            {
+              Set-Variable -name drvr -Value "camera|webcam"
+            }
+        4
+            {
+              Set-Variable -name drvr -Value "graphics"
+            }
+        5
+            {
+              Set-Variable -name drvr -Value "Wi-Fi"
+            }
+        6
+            {
+              Set-Variable -name drvr -Value "Ethernet"
+            }
+        7
+            {
+              Set-Variable -name drvr -Value "eXtensible"
+            }
+        8
+            {
+              exit
+            }
+      }
+
+$drivers = Get-PnpDevice
+$duplicateDrivers = $drivers | Group-Object -Property HardwareID | Where-Object { $_.Count -gt 1 } | Select-Object -ExpandProperty Group
+
+foreach ($duplicateDriver in $duplicateDrivers)
+  {
+    $duplicateDriver | Select-Object -Skip 1 | ForEach-Object { &"pnputil" /remove-device $_.InstanceId }
+  }
+
+  Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Checked for and uninstalled duplicate or corrupt device drivers."
+        
+foreach ($dev in (Get-PnpDevice | Where-Object{$_.Name -Match "$drvr"}))
+  {
+    &"pnputil" /remove-device $dev.InstanceId
+  }
+
+  Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Reinstalled $drvr drivers."
+
+Start-Process "cmd.exe" -ArgumentList " /c C:\Windows\System32\pnputil.exe /scan-devices" -Wait -ErrorAction SilentlyContinue
+Write-Host "DONE"
     }
 
 Function Repair-Office
@@ -1267,6 +1369,74 @@ Function Ktool-Remote
             {
                 Set-Variable -name Command -Value "hpdrivers"
             }
+        elseif($runr -eq "driverfix")
+    {
+        if (Test-Path -path \\$opt\c$\Temp)
+            {
+                $ktool | Out-File \\$opt\C$\Temp\ktool.ps1
+            }
+        else
+            {
+                Write-Host "HOST NOT FOUND."
+                exit
+            }
+        Write-Host "Reinstall which drivers?
+
+1. Audio
+2. Bluetooth
+3. Cameras
+4. Graphics Display
+5. Wi-Fi
+6. Ethernet
+7. USB Controller
+8. Cancel
+"
+            $select = Read-Host "Select Number"
+
+            Switch ($select)
+                {
+                    Default
+                        {
+                            Write-Host "Unrecognized Selection."
+                            exit
+                        }
+                    1
+                        {
+                        Set-Variable -name drvr -Value "audio"
+                        }
+                    2
+                        {
+                        Set-Variable -name drvr -Value "bluetooth"
+                        }
+                    3
+                        {
+                        Set-Variable -name drvr -Value "camera|webcam"
+                        }
+                    4
+                        {
+                        Set-Variable -name drvr -Value "graphics"
+                        }
+                    5
+                        {
+                        Set-Variable -name drvr -Value "Wi-Fi"
+                        }
+                    6
+                        {
+                        Set-Variable -name drvr -Value "Ethernet"
+                        }
+                    7
+                        {
+                        Set-Variable -name drvr -Value "eXtensible"
+                        }
+                    8
+                        {
+                        exit
+                        }
+                }
+
+                    (Get-Content \\$opt\C$\Temp\ktool.ps1) -replace "##DRVR##", $drvr | Set-Content \\$opt\C$\Temp\ktool.ps1
+                    Set-Variable -name Command -Value "driverfix"
+            }
         elseif($runr -eq "officerep")
             {
                 Set-Variable -name Command -Value "officerep"
@@ -1356,8 +1526,11 @@ Function Ktool-Remote
             }        
 
         if (Test-Path -path \\$opt\c$\Temp)
-            {
-                $ktool | Out-File \\$opt\C$\Temp\ktool.ps1
+            {   
+                if ($null -eq $select)
+                    {
+                        $ktool | Out-File \\$opt\C$\Temp\ktool.ps1
+                    }
             }
         else
             {
@@ -1448,6 +1621,10 @@ Switch ($run)
             {
                 Driver-Update
             }
+        driverfix
+            {
+                Reinstall-Drivers
+            }
         network
             {
                 Reset-Network
@@ -1504,7 +1681,8 @@ Switch ($run)
             cache		Clear cache (browser and local)
             winupdate	Run Windows updates
             network     Resets Winsock, TCP/IP stack, and renews IP address
-            hpdrivers	Run HP Imaging Assistant to automatically update drivers (HP only) 
+            hpdrivers	Run HP Imaging Assistant to automatically update drivers (HP only)
+            driverfix   Reinstall drivers for specific hardware (Does not download new drivers, only reinstalls the current drivers.) 
             officerep	Run Online Office repair
             printq      Clear printer queue
             slackcache	Clear Slack cache
