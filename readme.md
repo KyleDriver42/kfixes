@@ -1,14 +1,14 @@
-# **KTool: A Swiss-Army knife for IT support.**
+# **KFixes: A Swiss-Army knife for IT support.**
 
 ### **Overview**
 
-KTool is a PowerShell script designed to automate common IT support tasks and make PC maintenance and diagnostics more efficient. It can be run on a local machine or remotely from the technician's machine to the user's machine, providing a wide range of functions for technicians.
+KFixes is a PowerShell script designed to automate common IT support tasks and make PC maintenance and diagnostics more efficient. It can be run on a local machine or remotely from the technician's machine to the user's machine, providing a wide range of functions for technicians.
 
 ---
 
 ### **Getting Started**
 
-To use the script, download `ktool.ps1` and save it to a local directory, preferably as `C:\Temp`.
+To use the script, download `kfixes.ps1` and save it to a local directory, preferably as `C:\Temp`.
 
 **Local Execution**
 
@@ -18,18 +18,18 @@ PowerShell
 
 ```
 Set-ExecutionPolicy -ExecutionPolicy Bypass
-C:\Temp\ktool.ps1 <command> <flag>
+C:\Temp\kfixes.ps1 <command> <flag>
 ```
 
 **Remote Execution**
 
-To run KTool on a remote machine, the remote machine must be online and accessible on the network. Ticket notes are generated automatically for remote sessions, and will open once the session closes.
+To run kfixes on a remote machine, the remote machine must be online and accessible on the network. Ticket notes are generated automatically for remote sessions, and will open once the session closes.
 
 PowerShell
 
 ```
 Set-ExecutionPolicy -ExecutionPolicy Bypass
-C:\Temp\ktool.ps1 remote <hostname> <command> <flag>
+C:\Temp\kfixes.ps1 remote <hostname> <command> <flag>
 ```
 
 ---
@@ -46,14 +46,14 @@ C:\Temp\ktool.ps1 remote <hostname> <command> <flag>
 * `officerep`: Runs a quick repair for Microsoft Office.
 * `printq`: Clear printer queue  
 * `slackcache`: Clears the cache for the Slack desktop app.  
-* `pkill <process_name>`: Kills a specified process by name (e.g., `C:\Temp\ktool.ps1 pkill chrome`).
+* `pkill <process_name>`: Kills a specified process by name (e.g., `C:\Temp\kfixes.ps1 pkill chrome`).
 * `errorlog`: Displays recent Application and System errors  
 * `wlan`: Generates and displays a detailed Wi-Fi report.  
 * `battery`: Generates and displays a battery health report.  
 * `postimage`: Runs a series of hardware and software diagnostics, including tests for disk drives, Wi-Fi, battery health, and peripherals like the keyboard and trackpad. Peripheral tests are skipped if run on a remote machine.
 * `remote`: Executes a command on a remote machine. See **Remote Execution** above for syntax.  
-* `progress`: Checks the status and progress of a script running on a remote machine. (e.g., `C:\Temp\ktool.ps1 progress <hostname>`). 
-* `notes`: Generates a text file after a remote session, creating notes for a support ticket. (e.g., `C:\Temp\ktool.ps1 notes <hostname>`).  
+* `progress`: Checks the status and progress of a script running on a remote machine. (e.g., `C:\Temp\kfixes.ps1 progress <hostname>`). 
+* `notes`: Generates a text file after a remote session, creating notes for a support ticket. (e.g., `C:\Temp\kfixes.ps1 notes <hostname>`).  
 * `help`: Displays the list of available commands and flags.
 
 ---
@@ -72,12 +72,12 @@ Flags are optional parameters that control the script's behavior after the main 
 
 **Local Execution**
 
-* Run a full repair and automatically reboot and delete the script: `C:\Temp\ktool.ps1 repair auto`  
-* Clear the cache and delete the script when finished: `C:\Temp\ktool.ps1 cache delete`  
-* Run hardware diagnostics and keep the script: `C:\Temp\ktool.ps1 postimage`
+* Run a full repair and automatically reboot and delete the script: `C:\Temp\kfixes.ps1 repair auto`  
+* Clear the cache and delete the script when finished: `C:\Temp\kfixes.ps1 cache delete`  
+* Run hardware diagnostics and keep the script: `C:\Temp\kfixes.ps1 postimage`
 
 **Remote Execution**
 
-* Run a full repair on a remote host named `PC-01`: `C:\Temp\ktool.ps1 remote PC-01 repair auto`  
-* Check the progress of a remote session on `PC-02`: `C:\Temp\ktool.ps1 progress PC-02`  
-* Kill the `Chrome` browser on `PC-03`: `C:\Temp\ktool.ps1 remote PC-03 pkill chrome`
+* Run a full repair on a remote host named `PC-01`: `C:\Temp\kfixes.ps1 remote PC-01 repair auto`  
+* Check the progress of a remote session on `PC-02`: `C:\Temp\kfixes.ps1 progress PC-02`  
+* Kill the `Chrome` browser on `PC-03`: `C:\Temp\kfixes.ps1 remote PC-03 pkill chrome`
