@@ -11,7 +11,7 @@ catch
     }
 $SLOC= Split-Path -Parent $($global:MyInvocation.MyCommand.Definition)
 
-$ktool = @'
+$kfixes = @'
 param ($run, $opt, $runr, $optr)
 Import-Module PSWorkflow
 
@@ -38,7 +38,7 @@ Function Net-Cleanup
                 Remove-Item -path "C:\Users\$LOCUSR\AppData\Local\Microsoft\Windows\Edge\User Data\Default\Cache\Cache_Data\*" -Recurse -Force -ErrorAction SilentlyContinue
                 Remove-Item -path "C:\Users\$LOCUSR\AppData\Local\Microsoft\Windows\Edge\User Data\Default\Network\Cookies" -Force -ErrorAction SilentlyContinue
                 Remove-Item -path "C:\Users\$LOCUSR\AppData\Local\Microsoft\Windows\Edge\User Data\Default\Network\Cookies-journal" -Force -ErrorAction SilentlyContinue
-                Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Cleared Internet cache."
+                Add-Content -Path C:\Temp\k-log.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Cleared Internet cache."
 
                 Write-Host "CLEARING CHROME CACHE"
                 Remove-Item -path "C:\Users\$LOCUSR\AppData\Google\Chrome\User Data\Default\Cache\*" -Recurse -Force -ErrorAction SilentlyContinue
@@ -48,7 +48,7 @@ Function Net-Cleanup
                 Remove-Item "C:\Users\$LOCUSR\AppData\Google\Chrome\User Data\Default\Network\Cookies" -Force -ErrorAction SilentlyContinue 
                 Remove-Item "C:\Users\$LOCUSR\AppData\Google\Chrome\User Data\Default\Network\Media Cache" -Force -ErrorAction SilentlyContinue
                 Remove-Item "C:\Users\$LOCUSR\AppData\Google\Chrome\User Data\Default\Network\Cookies-Journal" -Force -ErrorAction SilentlyContinue
-                Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Cleared Chrome cache."
+                Add-Content -Path C:\Temp\k-log.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Cleared Chrome cache."
                 Write-Host "DONE"
 
                 Remove-Item C:\users\$LOCUSR\AppData\Local\Temp\* -Recurse -Force -ErrorAction SilentlyContinue
@@ -57,12 +57,12 @@ Function Net-Cleanup
         Write-Host "CLEARING LOCAL CACHE"
         Remove-Item C:\Windows\Temp\* -Recurse -Force -ErrorAction SilentlyContinue
         Remove-Item C:\Windows\Prefetch\* -Recurse -Force -ErrorAction SilentlyContinue
-        Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Cleared local cache."
+        Add-Content -Path C:\Temp\k-log.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Cleared local cache."
         Write-Host "DONE"
 
         Write-Host "FLUSHING DNS"
         cmd.exe /c ipconfig /flushdns
-        Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Flushed DNS."
+        Add-Content -Path C:\Temp\k-log.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Flushed DNS."
         Write-Host "DONE"
     }
 
@@ -77,22 +77,22 @@ Function Windows-Repair
         Start-Job -FilePath C:\temp\dt.ps1 | Out-Null
         dism /online /cleanup-image /restorehealth
         Remove-Item "C:\temp\dt.ps1" 
-        Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Ran DISM."
+        Add-Content -Path C:\Temp\k-log.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Ran DISM."
         Write-Host "DONE."
 
         Write-Host "RUNNING SYSTEM FILE CHECK"
         sfc /scannow
-        Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Ran SFC."
+        Add-Content -Path C:\Temp\k-log.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Ran SFC."
         Write-Host "DONE"
 
         Write-Host "REPAIRING MICROSOFT COMPONENTS"
         Get-AppXPackage | Foreach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"} -ErrorAction SilentlyContinue
-        Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Re-registered Microsoft components."
+        Add-Content -Path C:\Temp\k-log.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Re-registered Microsoft components."
         Write-Host "DONE"
 
         Write-Host "UPDATING GROUP POLICY"
         cmd.exe /c echo n | gpupdate /force /wait:0
-        Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Ran GPUpdate."
+        Add-Content -Path C:\Temp\k-log.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Ran GPUpdate."
         Write-Host "DONE"  
     }
 Function Run-WinUpdate
@@ -103,7 +103,7 @@ Function Run-WinUpdate
         Get-WindowsUpdate | Out-Null
         Install-WindowsUpdate -AcceptAll
         Write-Host "Done."
-        Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Ran Windows Updates."
+        Add-Content -Path C:\Temp\k-log.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Ran Windows Updates."
 
     }
 Function Get-RecentErrors
@@ -128,7 +128,7 @@ Function Reset-Network
         cmd.exe /c "ipconfig /release"
         cmd.exe /c "ipconfig /renew"
 
-        Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Reset Winsock, TCP/IP Stack, and renewed IP address."
+        Add-Content -Path C:\Temp\k-log.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Reset Winsock, TCP/IP Stack, and renewed IP address."
     }
 Function Driver-Update
     {
@@ -148,7 +148,7 @@ Function Driver-Update
                         catch
                             {
                                 Write-Host "Error analyzing drivers."
-                                Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format 'MM.dd.yy hh:mm') Unable to run Driver Upgrades."
+                                Add-Content -Path C:\Temp\k-log.txt -Value "$(Get-Date -Format 'MM.dd.yy hh:mm') Unable to run Driver Upgrades."
                                 exit
                             }
                         $jsonFile = Get-ChildItem $report -Filter "*.json" | Where-Object { $_.PSIsContainer -eq $false }
@@ -163,14 +163,14 @@ Function Driver-Update
                         catch
                             {
                                 Write-Host "Error upgrading drivers."
-                                Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format 'MM.dd.yy hh:mm') Unable to run Driver Upgrades."
+                                Add-Content -Path C:\Temp\k-log.txt -Value "$(Get-Date -Format 'MM.dd.yy hh:mm') Unable to run Driver Upgrades."
                                 exit
                             }
 
                         Write-Host "Drivers Upgraded."
-                        Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format 'MM.dd.yy hh:mm') Ran Driver Upgrades."
+                        Add-Content -Path C:\Temp\k-log.txt -Value "$(Get-Date -Format 'MM.dd.yy hh:mm') Ran Driver Upgrades."
                         $dreport[0] = " $($dreport[0])"
-                        Add-Content -Path C:\Temp\ktlog.txt -Value "$($dreport | ForEach-Object { "$_`n" -replace 'Upgrading Driver:', 'Upgraded Driver:' })"
+                        Add-Content -Path C:\Temp\k-log.txt -Value "$($dreport | ForEach-Object { "$_`n" -replace 'Upgrading Driver:', 'Upgraded Driver:' })"
                     }    
                 Function Setup-HPIA
                     {
@@ -183,13 +183,13 @@ Function Driver-Update
                                 catch
                                     {
                                         Write-Host "Error installing HPIA."
-                                        Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Unable to install HPIA."
+                                        Add-Content -Path C:\Temp\k-log.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Unable to install HPIA."
                                     }
 
                                 Do {Start-Sleep -Seconds 5}
                                 until (Test-Path -path "C:\Program Files\HP\HPIA\HPImageAssistant.exe" -PathType Leaf)
                                 
-                                Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Set up HPIA."
+                                Add-Content -Path C:\Temp\k-log.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Set up HPIA."
                                 Write-Host "Queuing Driver and Firmware upgrades."
 
                             }
@@ -207,7 +207,7 @@ Function Driver-Update
                             catch
                                 {
                                     Write-Host "Error downloading HPIA."
-                                    Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Unable to download HPIA."
+                                    Add-Content -Path C:\Temp\k-log.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Unable to download HPIA."
                                     exit
                                 }
                                 Do {Start-Sleep -Seconds 5}
@@ -223,7 +223,7 @@ Function Driver-Update
                                 else
                                     {
                                         Write-Host "Hash Mismatch."
-                                        Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Unable to download HPIA, hash mismatch."
+                                        Add-Content -Path C:\Temp\k-log.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Unable to download HPIA, hash mismatch."
                                         exit
                                     }
 
@@ -262,14 +262,14 @@ Function Reinstall-Drivers
             $duplicateDriver | Select-Object -Skip 1 | ForEach-Object { &"pnputil" /remove-device $_.InstanceId }
         }
 
-        Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Checked for and uninstalled duplicate or corrupt device drivers."
+        Add-Content -Path C:\Temp\k-log.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Checked for and uninstalled duplicate or corrupt device drivers."
                 
         foreach ($dev in (Get-PnpDevice | Where-Object{$_.Name -Match "##DRVR##"}))
         {
             &"pnputil" /remove-device $dev.InstanceId
         }
 
-        Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Reinstalled ##DRVR## drivers."
+        Add-Content -Path C:\Temp\k-log.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Reinstalled ##DRVR## drivers."
 
         Start-Process "cmd.exe" -ArgumentList " /c C:\Windows\System32\pnputil.exe /scan-devices" -Wait -ErrorAction SilentlyContinue
         Write-Host "DONE"
@@ -285,12 +285,12 @@ Function Clear-PrintQueue
             {
                 Remove-Item -Path $spoolPath -Force -ErrorAction Stop
                 Write-Host "Print queue cleared successfully."
-                Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Cleared print queue."
+                Add-Content -Path C:\Temp\k-log.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Cleared print queue."
             }
         catch
             {
                 Write-Host "Error clearing some files."
-                Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Failed to clear print queue."
+                Add-Content -Path C:\Temp\k-log.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Failed to clear print queue."
             }
         
         Write-Host "Restarting the Print Spooler service."
@@ -308,7 +308,7 @@ Function Repair-Office
                     {
                         cmd.exe /C  "C:\Program Files\Common Files\microsoft shared\ClickToRun\OfficeC2RClient.exe" scenario=Repair platform=x86 culture=en-us RepairType=FullRepair forceappshutdown=True DisplayLevel=False
                         Write-Host "DONE"
-                        Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format 'MM.dd.yy hh:mm') Ran Online Office Repair."
+                        Add-Content -Path C:\Temp\k-log.txt -Value "$(Get-Date -Format 'MM.dd.yy hh:mm') Ran Online Office Repair."
                     }
                 catch
                     {
@@ -331,7 +331,7 @@ Function Clear-Slack
         Remove-Item -Recurse -Path "C:\Users\$LOCUSR\AppData\Roaming\Slack\Code Cache\js"
         Remove-Item -Recurse -Path "C:\Users\$LOCUSR\AppData\Roaming\Slack\Code Cache\wasm"
         Remove-Item -Recurse -Path "C:\Users\$LOCUSR\AppData\Roaming\Slack\GPUCache"
-        Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Cleared Slack cache." 
+        Add-Content -Path C:\Temp\k-log.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Cleared Slack cache." 
     }
 Function Post-Image
     {
@@ -533,13 +533,13 @@ Function Post-Image
 Function Reboot-PC
     {
         Write-Host "REBOOTING WORKSTATION"
-        Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Rebooted."
+        Add-Content -Path C:\Temp\k-log.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Rebooted."
         Start-Sleep -Seconds 10 ; Restart-Computer -Force
     }
 
 Function Delete-Self
     {
-        Remove-Item C:\Temp\ktool.ps1
+        Remove-Item C:\Temp\kfixes.ps1
     } 
 
 Switch ($run)
@@ -643,7 +643,7 @@ Function Net-Cleanup
                 Remove-Item -path "C:\Users\$LOCUSR\AppData\Local\Microsoft\Windows\Edge\User Data\Default\Cache\Cache_Data\*" -Recurse -Force -ErrorAction SilentlyContinue
                 Remove-Item -path "C:\Users\$LOCUSR\AppData\Local\Microsoft\Windows\Edge\User Data\Default\Network\Cookies" -Force -ErrorAction SilentlyContinue
                 Remove-Item -path "C:\Users\$LOCUSR\AppData\Local\Microsoft\Windows\Edge\User Data\Default\Network\Cookies-journal" -Force -ErrorAction SilentlyContinue
-                Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Cleared Internet cache."
+                Add-Content -Path C:\Temp\k-log.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Cleared Internet cache."
 
                 Write-Host "CLEARING CHROME CACHE"
                 Remove-Item -path "C:\Users\$LOCUSR\AppData\Google\Chrome\User Data\Default\Cache\*" -Recurse -Force -ErrorAction SilentlyContinue
@@ -653,7 +653,7 @@ Function Net-Cleanup
                 Remove-Item "C:\Users\$LOCUSR\AppData\Google\Chrome\User Data\Default\Network\Cookies" -Force -ErrorAction SilentlyContinue 
                 Remove-Item "C:\Users\$LOCUSR\AppData\Google\Chrome\User Data\Default\Network\Media Cache" -Force -ErrorAction SilentlyContinue
                 Remove-Item "C:\Users\$LOCUSR\AppData\Google\Chrome\User Data\Default\Network\Cookies-Journal" -Force -ErrorAction SilentlyContinue
-                Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Cleared Chrome cache."
+                Add-Content -Path C:\Temp\k-log.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Cleared Chrome cache."
                 Write-Host "DONE"
 
                 Remove-Item C:\users\$LOCUSR\AppData\Local\Temp\* -Recurse -Force -ErrorAction SilentlyContinue
@@ -662,12 +662,12 @@ Function Net-Cleanup
         Write-Host "CLEARING LOCAL CACHE"
         Remove-Item C:\Windows\Temp\* -Recurse -Force -ErrorAction SilentlyContinue
         Remove-Item C:\Windows\Prefetch\* -Recurse -Force -ErrorAction SilentlyContinue
-        Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Cleared local cache."
+        Add-Content -Path C:\Temp\k-log.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Cleared local cache."
         Write-Host "DONE"
 
         Write-Host "FLUSHING DNS"
         cmd.exe /c ipconfig /flushdns
-        Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Flushed DNS."
+        Add-Content -Path C:\Temp\k-log.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Flushed DNS."
         Write-Host "DONE"
     }
 
@@ -682,22 +682,22 @@ Function Windows-Repair
         Start-Job -FilePath C:\temp\dt.ps1 | Out-Null
         dism /online /cleanup-image /restorehealth
         Remove-Item "C:\temp\dt.ps1" 
-        Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Ran DISM."
+        Add-Content -Path C:\Temp\k-log.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Ran DISM."
         Write-Host "DONE."
 
         Write-Host "RUNNING SYSTEM FILE CHECK"
         sfc /scannow
-        Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Ran SFC."
+        Add-Content -Path C:\Temp\k-log.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Ran SFC."
         Write-Host "DONE"
 
         Write-Host "REPAIRING MICROSOFT COMPONENTS"
         Get-AppXPackage | Foreach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"} -ErrorAction SilentlyContinue
-        Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Re-registered Microsoft components."
+        Add-Content -Path C:\Temp\k-log.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Re-registered Microsoft components."
         Write-Host "DONE"
 
         Write-Host "UPDATING GROUP POLICY"
         cmd.exe /c echo n | gpupdate /force /wait:0
-        Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Ran GPUpdate."
+        Add-Content -Path C:\Temp\k-log.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Ran GPUpdate."
         Write-Host "DONE"   
     }
 Function Run-WinUpdate
@@ -708,7 +708,7 @@ Function Run-WinUpdate
         Get-WindowsUpdate | Out-Null
         Install-WindowsUpdate -AcceptAll
         Write-Host "Done."
-        Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Ran Windows Updates."
+        Add-Content -Path C:\Temp\k-log.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Ran Windows Updates."
 
     }
 Function Reset-Network
@@ -723,7 +723,7 @@ Function Reset-Network
         cmd.exe /c "ipconfig /release"
         cmd.exe /c "ipconfig /renew"
 
-        Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Reset Winsock, TCP/IP Stack, and renewed IP address."
+        Add-Content -Path C:\Temp\k-log.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Reset Winsock, TCP/IP Stack, and renewed IP address."
     }
 Function Clear-PrintQueue
     {
@@ -736,12 +736,12 @@ Function Clear-PrintQueue
             {
                 Remove-Item -Path $spoolPath -Force -ErrorAction Stop
                 Write-Host "Print queue cleared successfully."
-                Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Cleared print queue."
+                Add-Content -Path C:\Temp\k-log.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Cleared print queue."
             }
         catch
             {
                 Write-Host "Error clearing some files."
-                Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Failed to clear print queue."
+                Add-Content -Path C:\Temp\k-log.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Failed to clear print queue."
             }
         
         Write-Host "Restarting the Print Spooler service."
@@ -765,7 +765,7 @@ Function Driver-Update
                     catch
                         {
                             Write-Host "Error analyzing drivers."
-                            Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format 'MM.dd.yy hh:mm') Unable to run Driver Upgrades."
+                            Add-Content -Path C:\Temp\k-log.txt -Value "$(Get-Date -Format 'MM.dd.yy hh:mm') Unable to run Driver Upgrades."
                             exit
                         }
                     $jsonFile = Get-ChildItem $report -Filter "*.json" | Where-Object { $_.PSIsContainer -eq $false }
@@ -780,14 +780,14 @@ Function Driver-Update
                     catch
                         {
                             Write-Host "Error upgrading drivers."
-                            Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format 'MM.dd.yy hh:mm') Unable to run Driver Upgrades."
+                            Add-Content -Path C:\Temp\k-log.txt -Value "$(Get-Date -Format 'MM.dd.yy hh:mm') Unable to run Driver Upgrades."
                             exit
                         }
 
                     Write-Host "Drivers Upgraded."
-                    Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format 'MM.dd.yy hh:mm') Ran Driver Upgrades."
+                    Add-Content -Path C:\Temp\k-log.txt -Value "$(Get-Date -Format 'MM.dd.yy hh:mm') Ran Driver Upgrades."
                     $dreport[0] = " $($dreport[0])"
-                    Add-Content -Path C:\Temp\ktlog.txt -Value "$($dreport | ForEach-Object { "$_`n" -replace 'Upgrading Driver:', 'Upgraded Driver:' })"
+                    Add-Content -Path C:\Temp\k-log.txt -Value "$($dreport | ForEach-Object { "$_`n" -replace 'Upgrading Driver:', 'Upgraded Driver:' })"
                 }    
             Function Setup-HPIA
                 {
@@ -800,13 +800,13 @@ Function Driver-Update
                             catch
                                 {
                                     Write-Host "Error installing HPIA."
-                                    Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Unable to install HPIA."
+                                    Add-Content -Path C:\Temp\k-log.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Unable to install HPIA."
                                 }
 
                             Do {Start-Sleep -Seconds 5}
                             until (Test-Path -path "C:\Program Files\HP\HPIA\HPImageAssistant.exe" -PathType Leaf)
                             
-                            Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Set up HPIA."
+                            Add-Content -Path C:\Temp\k-log.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Set up HPIA."
                             Write-Host "Queuing Driver and Firmware upgrades."
 
                         }
@@ -824,7 +824,7 @@ Function Driver-Update
                         catch
                             {
                                 Write-Host "Error downloading HPIA."
-                                Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Unable to download HPIA."
+                                Add-Content -Path C:\Temp\k-log.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Unable to download HPIA."
                                 exit
                             }
                             Do {Start-Sleep -Seconds 5}
@@ -840,7 +840,7 @@ Function Driver-Update
                             else
                                 {
                                     Write-Host "Hash Mismatch."
-                                    Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Unable to download HPIA, hash mismatch."
+                                    Add-Content -Path C:\Temp\k-log.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Unable to download HPIA, hash mismatch."
                                     exit
                                 }
 
@@ -934,14 +934,14 @@ foreach ($duplicateDriver in $duplicateDrivers)
     $duplicateDriver | Select-Object -Skip 1 | ForEach-Object { &"pnputil" /remove-device $_.InstanceId }
   }
 
-  Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Checked for and uninstalled duplicate or corrupt device drivers."
+  Add-Content -Path C:\Temp\k-log.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Checked for and uninstalled duplicate or corrupt device drivers."
         
 foreach ($dev in (Get-PnpDevice | Where-Object{$_.Name -Match "$drvr"}))
   {
     &"pnputil" /remove-device $dev.InstanceId
   }
 
-  Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Reinstalled $drvr drivers."
+  Add-Content -Path C:\Temp\k-log.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Reinstalled $drvr drivers."
 
 Start-Process "cmd.exe" -ArgumentList " /c C:\Windows\System32\pnputil.exe /scan-devices" -Wait -ErrorAction SilentlyContinue
 Write-Host "DONE"
@@ -959,7 +959,7 @@ Function Repair-Office
                     {
                         cmd.exe /C  "C:\Program Files\Common Files\microsoft shared\ClickToRun\OfficeC2RClient.exe" scenario=Repair platform=x86 culture=en-us RepairType=FullRepair forceappshutdown=True DisplayLevel=False
                         Write-Host "DONE"
-                        Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format 'MM.dd.yy hh:mm') Ran Online Office Repair."
+                        Add-Content -Path C:\Temp\k-log.txt -Value "$(Get-Date -Format 'MM.dd.yy hh:mm') Ran Online Office Repair."
                     }
                 catch
                     {
@@ -983,7 +983,7 @@ Function Clear-Slack
         Remove-Item -Recurse -Path "C:\Users\$LOCUSR\AppData\Roaming\Slack\Code Cache\js"
         Remove-Item -Recurse -Path "C:\Users\$LOCUSR\AppData\Roaming\Slack\Code Cache\wasm"
         Remove-Item -Recurse -Path "C:\Users\$LOCUSR\AppData\Roaming\Slack\GPUCache"
-        Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Cleared Slack cache." 
+        Add-Content -Path C:\Temp\k-log.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Cleared Slack cache." 
     }
 
 Function Get-RecentErrors
@@ -1012,7 +1012,7 @@ Function Battery-Report
 Function Get-Notes
     {
         Clear-Content C:\temp\tix.txt
-        (Get-Content -Path "\\$opt\C$\Temp\ktlog.txt" -Raw) -split '%' | 
+        (Get-Content -Path "\\$opt\C$\Temp\k-log.txt" -Raw) -split '%' | 
             Select-Object -Last 1 | 
             ForEach-Object { 
                 ($_ -split "`n") | 
@@ -1314,7 +1314,7 @@ Function Post-Image
             }
 
     }
-Function Ktool-Remote
+Function kfixes-Remote
     {
         if (-not(Test-Path -path C:\PsExec.exe -PathType Leaf))
             {
@@ -1373,7 +1373,7 @@ Function Ktool-Remote
     {
         if (Test-Path -path \\$opt\c$\Temp)
             {
-                $ktool | Out-File \\$opt\C$\Temp\ktool.ps1
+                $kfixes | Out-File \\$opt\C$\Temp\kfixes.ps1
             }
         else
             {
@@ -1434,7 +1434,7 @@ Function Ktool-Remote
                         }
                 }
 
-                    (Get-Content \\$opt\C$\Temp\ktool.ps1) -replace "##DRVR##", $drvr | Set-Content \\$opt\C$\Temp\ktool.ps1
+                    (Get-Content \\$opt\C$\Temp\kfixes.ps1) -replace "##DRVR##", $drvr | Set-Content \\$opt\C$\Temp\kfixes.ps1
                     Set-Variable -name Command -Value "driverfix"
             }
         elseif($runr -eq "officerep")
@@ -1486,7 +1486,7 @@ Function Ktool-Remote
                 cmd /c "ipconfig /flushdns"
                     if (Test-Path -path \\$opt\c$\Temp)
                         {
-                            (Get-Content -Path "\\$opt\C$\Temp\ktlog.txt" -Raw) -split '%' | Select-Object -Last 1
+                            (Get-Content -Path "\\$opt\C$\Temp\k-log.txt" -Raw) -split '%' | Select-Object -Last 1
                             exit
                         }
                     else
@@ -1497,7 +1497,7 @@ Function Ktool-Remote
                                     Write-Host "Still Waiting..."
                                 }
                             Until (Test-Path -path \\$opt\c$\Temp)
-                            Get-Content \\$opt\C$\Temp\ktlog.txt
+                            Get-Content \\$opt\C$\Temp\k-log.txt
                             exit
                         }
             }
@@ -1529,7 +1529,7 @@ Function Ktool-Remote
             {   
                 if ($null -eq $select)
                     {
-                        $ktool | Out-File \\$opt\C$\Temp\ktool.ps1
+                        $kfixes | Out-File \\$opt\C$\Temp\kfixes.ps1
                     }
             }
         else
@@ -1538,15 +1538,15 @@ Function Ktool-Remote
                 exit
             }
 
-        Add-Content -Path "\\$opt\C$\Temp\ktlog.txt" "`n%"
-        C:\PsExec.exe \\$opt powershell.exe -ExecutionPolicy RemoteSigned -command "c:\temp\ktool.ps1 $Command $Option"
+        Add-Content -Path "\\$opt\C$\Temp\k-log.txt" "`n%"
+        C:\PsExec.exe \\$opt powershell.exe -ExecutionPolicy RemoteSigned -command "c:\temp\kfixes.ps1 $Command $Option"
         Clear-Variable -Name "Command"
         Clear-Variable -Name "Option"
 
         if (Test-Path -path \\$opt\c$\Temp)
             {
                 Clear-Content C:\temp\tix.txt
-                (Get-Content -Path "\\$opt\C$\Temp\ktlog.txt" -Raw) -split '%' | 
+                (Get-Content -Path "\\$opt\C$\Temp\k-log.txt" -Raw) -split '%' | 
                     Select-Object -Last 1 | 
                     ForEach-Object { 
                         ($_ -split "`n") | 
@@ -1576,7 +1576,7 @@ Function Ktool-Remote
 Function Reboot-PC
     {
         Write-Host "REBOOTING WORKSTATION"
-        Add-Content -Path C:\Temp\ktlog.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Rebooted."
+        Add-Content -Path C:\Temp\k-log.txt -Value "$(Get-Date -Format "MM.dd.yy hh:mm") Rebooted."
         Set-ExecutionPolicy -ExecutionPolicy Default
         Start-Sleep -Seconds 10 ; Restart-Computer -Force
     }
@@ -1584,7 +1584,7 @@ Function Reboot-PC
 Function Delete-Self
     {
         Set-ExecutionPolicy -ExecutionPolicy Default
-        Remove-Item C:\Temp\ktool.ps1
+        Remove-Item C:\Temp\kfixes.ps1
     } 
 Function Zatanna-Translate
     {
@@ -1667,7 +1667,7 @@ Switch ($run)
             }
         remote
             {
-                Ktool-Remote
+                kfixes-Remote
             }
         notes
             {
@@ -1686,25 +1686,25 @@ Switch ($run)
             officerep	Run Online Office repair
             printq      Clear printer queue
             slackcache	Clear Slack cache
-            pkill		Kills a process by name Syntax: c:\temp\ktool.ps1 pkill chrome
+            pkill		Kills a process by name Syntax: c:\temp\kfixes.ps1 pkill chrome
             errorlog    Displays recent Application and System errors
             wlan		Displays wifi connection log
             battery		Displays Windows battery report
             postimage	Runs PostImage script; hardware tests are skipped if run remotely
-            remote		Executes the script on a remote machine. Syntax: c:\temp\ktool.ps1 remote HOSTNAME command flag
+            remote		Executes the script on a remote machine. Syntax: c:\temp\kfixes.ps1 remote HOSTNAME command flag
             progress	Checks to see if a remote machine is back online after a network disconnect, and shows the progress of the script once it is.
-            notes	After running the script on a TM's machine, run this locally to generate ticket notes based on the script's logs. Syntax: c:\temp\ktool.ps1 notes HOSTNAME
+            notes	After running the script on a TM's machine, run this locally to generate ticket notes based on the script's logs. Syntax: c:\temp\kfixes.ps1 notes HOSTNAME
             ------FLAGS------
             delete		Deletes script after execution, but doesn't reboot.
             reboot		Prevents script from deleting itself after execution, then reboots.
             auto		Automatically reboots and self-deletes after execution
            
             ------SYNTAX------
-            c:\temp\ktool.ps1 wlan
-            c:\temp\ktool.ps1 cache delete
-            c:\temp\ktool.ps1 hpdrivers reboot
-            c:\temp\ktool.ps1 repair auto
-            c:\temp\ktool.ps1 remote HOSTNAME cache auto"
+            c:\temp\kfixes.ps1 wlan
+            c:\temp\kfixes.ps1 cache delete
+            c:\temp\kfixes.ps1 hpdrivers reboot
+            c:\temp\kfixes.ps1 repair auto
+            c:\temp\kfixes.ps1 remote HOSTNAME cache auto"
             }
   
     }
