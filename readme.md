@@ -8,7 +8,7 @@ KFixes is a PowerShell script designed to automate common IT support tasks and m
 
 ### **Getting Started**
 
-To use the script, download `kfixes.ps1` and save it to a local directory, preferably as `C:\Temp`.
+To use the script, download `kfixes.ps1` and save it to a local directory, preferably `C:\Temp`.
 
 **Local Execution**
 
