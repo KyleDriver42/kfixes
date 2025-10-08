@@ -1480,6 +1480,7 @@ Function kfixes-Remote
         elseif($runr -eq "pkill")
             {
             C:\PsExec.exe \\$opt powershell.exe "Get-Process -Name "*$optr*" | Stop-Process -Force"
+            exit
             }
         elseif($runr -eq "progress")
             {
